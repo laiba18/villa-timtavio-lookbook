@@ -1,0 +1,13 @@
+/* ─────────────────────────────────────────────────────────────────
+   Casa TimTavio Design System — Global CSS Entry Point
+   Import this one file to get the complete design system.
+   ───────────────────────────────────────────────────────────────── */
+
+/* Figma-generated variable collections */
+@import './tokens/fig-tokens.css';
+@import './tokens/fig-typography.css';
+
+/* Semantic design tokens */
+@import './tokens/colors.css';
+@import './tokens/typography.css';
+@import './tokens/spacing.css';
