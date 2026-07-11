@@ -1,25 +1,16 @@
 import { useEffect, useState } from 'react';
 import darkLogo from '../../images/dark-logo.svg';
 
-const KEY = 'villa-entered';
-
-// A brief "tap to enter" cover. The visitor's tap is a real user gesture, which
-// (a) unlocks the ambient audio — AmbientAudio's window listener starts it on
-// that same tap — and (b) fades the gate away to reveal the walkthrough. Shown
-// once per session.
+// A brief full-screen "tap to enter" cover, shown on every load. The visitor's
+// tap is a real user gesture, so it both starts the ambient audio (via
+// AmbientAudio's window listener) and plays a gate-split reveal — the two halves
+// slide apart to unveil the walkthrough, echoing the villa's opening gates.
 export default function EnterGate() {
-  const [entered, setEntered] = useState(() => {
-    try {
-      return sessionStorage.getItem(KEY) === '1';
-    } catch {
-      return false;
-    }
-  });
+  const [entered, setEntered] = useState(false);
   const [leaving, setLeaving] = useState(false);
 
   useEffect(() => {
     if (entered) return undefined;
-    // Freeze the page behind the gate.
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     return () => {
@@ -32,13 +23,7 @@ export default function EnterGate() {
   const enter = () => {
     if (leaving) return;
     setLeaving(true);
-    try {
-      sessionStorage.setItem(KEY, '1');
-    } catch {
-      /* ignore */
-    }
-    // Let the fade play out, then unmount.
-    window.setTimeout(() => setEntered(true), 900);
+    window.setTimeout(() => setEntered(true), 1150);
   };
 
   return (
@@ -52,6 +37,9 @@ export default function EnterGate() {
       tabIndex={0}
       aria-label="Enter Villa TimTavio"
     >
+      <div className="enter-gate-half enter-gate-half--l" />
+      <div className="enter-gate-half enter-gate-half--r" />
+      <div className="enter-gate-seam" />
       <div className="enter-gate-inner">
         <div className="enter-eyebrow">Puerto Escondido, Oaxaca · Mexico</div>
         <img src={darkLogo} alt="Villa TimTavio" className="enter-logo" />
