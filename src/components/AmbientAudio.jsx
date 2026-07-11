@@ -31,6 +31,8 @@ export default function AmbientAudio() {
   const onRef = useRef(true);
   const startedRef = useRef(false);
   const [on, setOn] = useState(true);
+  // Until audio actually starts, invite a tap (desktop scroll can't unlock audio).
+  const [started, setStarted] = useState(false);
 
   const fadeAudio = (to, onDone) => {
     const audio = audioRef.current;
@@ -67,6 +69,7 @@ export default function AmbientAudio() {
     try {
       await audio.play();
       startedRef.current = true;
+      setStarted(true);
       fadeAudio(TARGET_VOLUME);
     } catch {
       // Autoplay still blocked — a later real gesture will retry.
@@ -74,6 +77,14 @@ export default function AmbientAudio() {
   };
 
   useEffect(() => {
+    // Whenever the audio actually plays (by any path), drop the "tap" prompt.
+    const audio = audioRef.current;
+    const onPlaying = () => {
+      startedRef.current = true;
+      setStarted(true);
+    };
+    if (audio) audio.addEventListener('playing', onPlaying);
+
     tryStart(); // attempt immediate autoplay (works if the browser allows it)
 
     const evs = ['pointerdown', 'touchstart', 'keydown'];
@@ -86,6 +97,7 @@ export default function AmbientAudio() {
     evs.forEach((ev) => window.addEventListener(ev, onGesture, { passive: true }));
 
     return () => {
+      if (audio) audio.removeEventListener('playing', onPlaying);
       evs.forEach((ev) => window.removeEventListener(ev, onGesture));
       cancelAnimationFrame(rafRef.current);
       clearTimeout(fadeToRef.current);
@@ -109,6 +121,7 @@ export default function AmbientAudio() {
         try {
           await audio.play();
           startedRef.current = true;
+          setStarted(true);
           fadeAudio(TARGET_VOLUME);
         } catch {
           /* ignore */
@@ -126,12 +139,13 @@ export default function AmbientAudio() {
       <audio ref={audioRef} src={`${import.meta.env.BASE_URL}ambient.mp3`} loop preload="auto" />
       <button
         type="button"
-        className={`audio-toggle${on ? ' is-on' : ''}`}
+        className={`audio-toggle${on ? ' is-on' : ''}${!started ? ' has-hint' : ''}`}
         onClick={toggle}
         aria-label={on ? 'Mute ambient sound' : 'Play ambient sound'}
       >
         <SoundIcon on={on} />
         <span className="audio-toggle-label">Sound</span>
+        {!started && <span className="audio-hint">Tap for sound</span>}
       </button>
     </>
   );
