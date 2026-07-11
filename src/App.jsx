@@ -6,6 +6,7 @@ import AmbientAudio from './components/AmbientAudio';
 import SwivelInvite from './components/SwivelInvite';
 import ScrollReveal from './components/ScrollReveal';
 import MobileParallax from './components/MobileParallax';
+import EnterGate from './components/EnterGate';
 import { IconSymbols } from './components/Icons';
 import { SLIDES } from './data/slides';
 import useDeckScroll from './hooks/useDeckScroll';
@@ -20,6 +21,7 @@ export default function App() {
 
   return (
     <>
+      <EnterGate />
       <IconSymbols />
       <Nav />
       <ProgressRail activeSlide={activeSlide} slides={slides} />
