@@ -7,7 +7,7 @@ export default function DeckSlide({ slide, slideState, wrapRef, isActive, isNear
 
   return (
     <section
-      className="deck-wrap"
+      className={`deck-wrap${slide.scrub ? ' is-scrub' : ''}`}
       id={slide.id}
       style={{ zIndex: slide.zIndex }}
       ref={wrapRef}
@@ -38,6 +38,7 @@ export default function DeckSlide({ slide, slideState, wrapRef, isActive, isNear
               panel={panel}
               isActive={isActive}
               isNearActive={isNearActive}
+              isPanelActive={isActive && panelIndex === i}
             />
           ))}
         </div>

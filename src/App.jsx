@@ -2,6 +2,10 @@ import Nav from './components/Nav';
 import ProgressRail from './components/ProgressRail';
 import DeckSlide from './components/DeckSlide';
 import Footer from './components/InquiryForm';
+import AmbientAudio from './components/AmbientAudio';
+import SwivelInvite from './components/SwivelInvite';
+import ScrollReveal from './components/ScrollReveal';
+import MobileParallax from './components/MobileParallax';
 import { IconSymbols } from './components/Icons';
 import { SLIDES } from './data/slides';
 import useDeckScroll from './hooks/useDeckScroll';
@@ -19,6 +23,10 @@ export default function App() {
       <IconSymbols />
       <Nav />
       <ProgressRail activeSlide={activeSlide} slides={slides} />
+      <AmbientAudio />
+      <SwivelInvite />
+      <ScrollReveal />
+      <MobileParallax />
 
       {slides.map((slide, i) => (
         <DeckSlide
