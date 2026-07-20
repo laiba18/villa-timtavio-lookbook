@@ -6,6 +6,8 @@ import AmbientAudio from './components/AmbientAudio';
 import SwivelInvite from './components/SwivelInvite';
 import ScrollReveal from './components/ScrollReveal';
 import MobileParallax from './components/MobileParallax';
+import PanelClipReveal from './components/PanelClipReveal';
+import SmoothScroll from './components/SmoothScroll';
 import EnterGate from './components/EnterGate';
 import { IconSymbols } from './components/Icons';
 import { SLIDES } from './data/slides';
@@ -21,6 +23,7 @@ export default function App() {
 
   return (
     <>
+      <SmoothScroll />
       <EnterGate />
       <IconSymbols />
       <Nav />
@@ -28,6 +31,7 @@ export default function App() {
       <AmbientAudio />
       <SwivelInvite />
       <ScrollReveal />
+      <PanelClipReveal />
       <MobileParallax />
 
       {slides.map((slide, i) => (
