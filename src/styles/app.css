@@ -1,5 +1,7 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* Native smooth scroll only when Lenis is off — Lenis owns inertia otherwise. */
 html { scroll-behavior: smooth; }
+html.has-smooth-scroll { scroll-behavior: auto; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 
 body {
@@ -314,20 +316,63 @@ footer { background: rgb(28,28,28); padding: 56px 80px 40px; display: flex; flex
 
 /* ── MOTION: ken burns + content reveal ────────────────── */
 @keyframes kb-drift {
-  from { transform: scale(1.04) translate3d(0, 0, 0); }
-  to   { transform: scale(1.14) translate3d(-1.5%, -1.5%, 0); }
+  from { transform: scale(1.03) translate3d(0, 0, 0); }
+  to   { transform: scale(1.08) translate3d(-0.8%, -0.8%, 0); }
 }
-.kb { animation: kb-drift 22s ease-out both; }
+.kb { animation: kb-drift 28s ease-out both; }
+
+/* Parallax images need overflow room — keep edges covered while drifting */
+.deck-panel-bg-img,
+.media-fill,
+.deck-panel-media,
+.gallery-col-media {
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* Observer / Capitolium-style clip wipe + depth veil (vars from MobileParallax) */
+.deck-panel.is-parallaxing,
+.gallery-col.is-parallaxing {
+  clip-path: inset(0 var(--clip, 0%) 0 var(--clip, 0%));
+}
+.inquiry-form.is-parallaxing,
+footer.is-parallaxing {
+  /* sections: no hard clip — only soft veil + content drift */
+  clip-path: none;
+}
+.parallax-veil {
+  position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background: rgba(8, 6, 4, 0.5);
+  opacity: var(--veil, 0);
+  transition: none;
+}
+.inquiry-form .parallax-veil,
+footer .parallax-veil {
+  background: rgba(14, 12, 10, 0.35);
+  z-index: 0;
+}
+.deck-panel.is-parallaxing > .deck-panel-content,
+.inquiry-form.is-parallaxing,
+footer.is-parallaxing {
+  will-change: transform, opacity;
+}
+.inquiry-form,
+footer {
+  position: relative;
+  overflow: hidden;
+}
+
 
 @keyframes rise-in {
-  from { opacity: 0; transform: translateY(16px); }
+  from { opacity: 0; transform: translateY(22px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 /* Base text/media panels: subtle settle when they become the active panel.
    Default state stays fully visible so horizontally-panned panels never blank. */
-.deck-panel.is-live .deck-headline { animation: rise-in 0.9s cubic-bezier(0.22, 1, 0.36, 1) both; }
-.deck-panel.is-live .deck-body { animation: rise-in 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both; }
-.deck-panel.is-live .deck-eyebrow { animation: rise-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.deck-panel.is-live .deck-headline { animation: rise-in 1.05s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.deck-panel.is-live .deck-body { animation: rise-in 1.05s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both; }
+.deck-panel.is-live .deck-eyebrow { animation: rise-in 0.9s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.deck-panel.is-live .deck-media-caption { animation: rise-in 1s cubic-bezier(0.22, 1, 0.36, 1) 0.12s both; }
 
 /* ── SIGNATURE: THE SWIVEL DOOR (driven by --p on .deck-slide) ── */
 .deck-panel.is-swivel { background: rgb(8, 10, 12); }
@@ -335,19 +380,18 @@ footer { background: rgb(28,28,28); padding: 56px 80px 40px; display: flex; flex
 .swivel-reveal-img {
   position: absolute; inset: 0; width: 100%; height: 100%;
   object-fit: cover; object-position: center;
-  transform: scale(calc(1.16 - var(--p, 0) * 0.16));
-  transition: transform 0.05s linear;
+  transform: scale(calc(1.1 - var(--p, 0) * 0.1));
 }
 .swivel-reveal-scrim {
   position: absolute; inset: 0;
   background: linear-gradient(0deg, rgba(6,10,14,0.75) 0%, rgba(6,10,14,0.05) 55%, rgba(6,10,14,0.2) 100%);
   opacity: calc(1 - var(--p, 0) * 0.55);
 }
-.swivel-stage { position: absolute; inset: 0; z-index: 1; perspective: 1800px; perspective-origin: 30% 50%; }
+.swivel-stage { position: absolute; inset: 0; z-index: 1; perspective: 2200px; perspective-origin: 28% 50%; }
 .swivel-door {
   position: absolute; top: 0; bottom: 0; left: 0; width: 66%;
   transform-origin: left center;
-  transform: rotateY(calc(var(--p, 0) * -108deg + var(--sw-breathe, 0deg)));
+  transform: rotateY(calc(var(--p, 0) * -82deg + var(--sw-breathe, 0deg)));
   transform-style: preserve-3d;
   box-shadow: 40px 0 120px -30px rgba(0,0,0,0.8);
   backface-visibility: hidden;
@@ -591,6 +635,9 @@ footer { background: rgb(28,28,28); padding: 56px 80px 40px; display: flex; flex
   .is-closing::after { animation: none; opacity: 0.7; }
   .closing-divider { transform: scaleX(1); animation: none; }
   .is-closing.is-live .closing-tagline, .is-closing.is-live .closing-signoff { animation: none; }
+  .deck-panel.is-parallaxing,
+  .gallery-col.is-parallaxing { clip-path: none; }
+  .parallax-veil { display: none; }
 
   /* mobile scroll-reveal targets: show immediately, no transition */
   .reveal-ready .deck-eyebrow, .reveal-ready .deck-headline, .reveal-ready .deck-body,
@@ -630,6 +677,7 @@ footer { background: rgb(28,28,28); padding: 56px 80px 40px; display: flex; flex
      Each full-screen "page" fills the screen and snaps into place, so a swipe
      turns one page rather than free-scrolling. Galleries, editorial pages, and
      the swivel are exempt (they can exceed one screen — snapping would trap). */
+  /* Soft proximity snap — no forced stop, so parallax can breathe between pages */
   html { scroll-snap-type: y proximity; }
   .deck-panel.is-cover,
   .deck-panel.is-media,
@@ -638,7 +686,7 @@ footer { background: rgb(28,28,28); padding: 56px 80px 40px; display: flex; flex
   .deck-panel.is-closing {
     min-height: 100vh; min-height: 100svh;
     scroll-snap-align: start;
-    scroll-snap-stop: always;
+    scroll-snap-stop: normal;
   }
   .deck-panel.is-gallery,
   .deck-panel.is-program, .deck-panel.is-amenities, .deck-panel.is-spec,

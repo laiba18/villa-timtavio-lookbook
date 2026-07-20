@@ -12,10 +12,10 @@ export default function SwivelInvite() {
       window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reduce) return;
 
-    const AJAR = -9;        // resting open angle, degrees
-    const WOBBLE = 2.4;     // breathe amplitude, degrees
-    const PERIOD = 3800;    // breathe cycle, ms
-    const FADE_BY = 0.16;   // progress at which the breathe fully yields to scroll
+    const AJAR = -5;        // resting open angle, degrees (softer invite)
+    const WOBBLE = 1.2;     // breathe amplitude, degrees
+    const PERIOD = 4600;    // breathe cycle, ms
+    const FADE_BY = 0.14;   // progress at which the breathe fully yields to scroll
 
     let raf = 0;
 

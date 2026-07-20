@@ -1,12 +1,20 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { getLenis, scrollByOffset } from '../lib/lenis';
 
 function padIndex(n) {
   return String(n).padStart(2, '0');
 }
 
+// Ease factor for horizontal pan / scrub — higher = snappier, lower = silkier.
+const LERP = 0.11;
+const LERP_SCRUB = 0.09;
+const SNAP_IDLE_MS = 320;
+const SNAP_THRESHOLD = 10;
+
 export default function useDeckScroll(slides) {
   const wrapRefs = useRef([]);
   const metaRef = useRef([]);
+  const currentsRef = useRef([]); // lerped pixel / progress values per slide
   const [activeSlide, setActiveSlide] = useState(0);
   const [slideStates, setSlideStates] = useState(() =>
     slides.map(() => ({
@@ -73,13 +81,17 @@ export default function useDeckScroll(slides) {
     });
 
     metaRef.current = meta;
+    if (currentsRef.current.length !== meta.length) {
+      currentsRef.current = meta.map(() => 0);
+    }
     return meta;
   }, [slides]);
 
-  const render = useCallback(() => {
+  // Read scroll → target values; write lerped transforms every frame.
+  const sampleTargets = useCallback(() => {
     const vh = window.innerHeight;
     const meta = metaRef.current;
-    if (!meta.length) return;
+    if (!meta.length) return { activeIdx: 0, nextStates: null };
 
     let activeIdx = 0;
     const nextStates = slides.map((slide, i) => {
@@ -91,6 +103,7 @@ export default function useDeckScroll(slides) {
           cueText: 'Scroll to continue',
           indexText: '',
           progress: 0,
+          target: 0,
         };
       }
 
@@ -99,7 +112,7 @@ export default function useDeckScroll(slides) {
       // Mobile (non-scrub): natural vertical flow — only track the active slide.
       if (m.mobile && !m.isScrub) {
         if (rect.top <= vh * 0.5) activeIdx = i;
-        return { panelIndex: 0, cueDown: false, cueText: '', indexText: '', progress: 0 };
+        return { panelIndex: 0, cueDown: false, cueText: '', indexText: '', progress: 0, target: 0 };
       }
 
       const raw = Math.min(Math.max(-rect.top, 0), m.pan);
@@ -111,38 +124,82 @@ export default function useDeckScroll(slides) {
       let indexText = '';
 
       if (m.isScrub) {
-        // Feed scroll progress to the panel via a CSS custom property.
-        m.slideEl.style.setProperty('--p', progress.toFixed(4));
         cueDown = progress > 0.85;
-      } else if (m.pan > 0) {
-        m.track.style.transform = `translate3d(${-raw}px,0,0)`;
-
-        if (m.panels > 1) {
-          panelIndex = Math.min(m.panels - 1, Math.round(progress * (m.panels - 1)));
-          const isLast = panelIndex >= m.panels - 1;
-          cueDown = isLast;
-          cueText = isLast ? 'Scroll for next chapter' : 'Scroll to continue';
-          indexText = `${padIndex(panelIndex + 1)} / ${padIndex(m.panels)}`;
-        }
+      } else if (m.pan > 0 && m.panels > 1) {
+        panelIndex = Math.min(m.panels - 1, Math.round(progress * (m.panels - 1)));
+        const isLast = panelIndex >= m.panels - 1;
+        cueDown = isLast;
+        cueText = isLast ? 'Scroll for next chapter' : 'Scroll to continue';
+        indexText = `${padIndex(panelIndex + 1)} / ${padIndex(m.panels)}`;
       }
 
       if (rect.top <= vh * 0.5) {
         activeIdx = i;
       }
 
-      return { panelIndex, cueDown, cueText, indexText, progress };
+      // Scrub targets are 0..1; pan targets are pixel offsets.
+      const target = m.isScrub ? progress : raw;
+      return { panelIndex, cueDown, cueText, indexText, progress, target };
     });
 
-    setActiveSlide(activeIdx);
-    setSlideStates(nextStates);
+    return { activeIdx, nextStates };
   }, [slides]);
 
+  const applyLerped = useCallback((nextStates, reduceMotion) => {
+    const meta = metaRef.current;
+    let moving = false;
+
+    for (let i = 0; i < meta.length; i++) {
+      const m = meta[i];
+      const state = nextStates[i];
+      if (!m || !state || (m.mobile && !m.isScrub)) continue;
+
+      const target = state.target ?? 0;
+      let current = currentsRef.current[i] ?? 0;
+      const ease = m.isScrub ? LERP_SCRUB : LERP;
+
+      if (reduceMotion) {
+        current = target;
+      } else {
+        const delta = target - current;
+        if (Math.abs(delta) > 0.05) {
+          current += delta * ease;
+          moving = true;
+        } else {
+          current = target;
+        }
+      }
+      currentsRef.current[i] = current;
+
+      if (m.isScrub) {
+        m.slideEl.style.setProperty('--p', current.toFixed(4));
+        state.progress = current;
+      } else if (m.pan > 0) {
+        m.track.style.transform = `translate3d(${-current}px,0,0)`;
+        if (m.panels > 1 && m.slideWidth) {
+          const progress = m.pan > 0 ? current / m.pan : 0;
+          state.progress = progress;
+          state.panelIndex = Math.min(
+            m.panels - 1,
+            Math.round(progress * (m.panels - 1)),
+          );
+        }
+      }
+    }
+
+    return moving;
+  }, []);
+
   useEffect(() => {
-    let ticking = false;
     let resizeTimer;
     let idleTimer;
     let isSnapping = false;
     let snapClearTimer;
+    let raf = 0;
+    let running = false;
+    let idleFrames = 0;
+    let lastActive = -1;
+    let lastStatesKey = '';
 
     const reduceMotion =
       typeof window.matchMedia === 'function' &&
@@ -170,14 +227,13 @@ export default function useDeckScroll(slides) {
         const targetRaw = Math.min(m.pan, Math.round(raw / step) * step);
         const delta = targetRaw - raw;
 
-        // Only settle when meaningfully off a boundary — avoids micro-nudges.
-        if (Math.abs(delta) > 6) {
+        if (Math.abs(delta) > SNAP_THRESHOLD) {
           isSnapping = true;
-          window.scrollTo({ top: window.scrollY + delta, behavior: 'smooth' });
+          scrollByOffset(delta, { duration: 0.9 });
           clearTimeout(snapClearTimer);
           snapClearTimer = setTimeout(() => {
             isSnapping = false;
-          }, 600);
+          }, 900);
         }
         break;
       }
@@ -186,42 +242,94 @@ export default function useDeckScroll(slides) {
     const scheduleSnap = () => {
       if (reduceMotion) return;
       clearTimeout(idleTimer);
-      idleTimer = setTimeout(maybeSnap, 130);
+      idleTimer = setTimeout(maybeSnap, SNAP_IDLE_MS);
     };
 
-    const onScroll = () => {
-      if (!ticking) {
-        ticking = true;
-        requestAnimationFrame(() => {
-          ticking = false;
-          render();
-        });
+    const tick = () => {
+      const { activeIdx, nextStates } = sampleTargets();
+      if (!nextStates) {
+        running = false;
+        return;
       }
+
+      const moving = applyLerped(nextStates, reduceMotion);
+      const lenisBusy = Boolean(getLenis()?.isScrolling);
+
+      // Avoid React state thrash — only publish when the visible cue/index changes.
+      const key = nextStates
+        .map((s) => `${s.panelIndex}|${s.cueDown}|${s.indexText}|${s.cueText}`)
+        .join(';');
+      if (activeIdx !== lastActive || key !== lastStatesKey) {
+        lastActive = activeIdx;
+        lastStatesKey = key;
+        setActiveSlide(activeIdx);
+        setSlideStates(
+          nextStates.map(({ panelIndex, cueDown, cueText, indexText, progress }) => ({
+            panelIndex,
+            cueDown,
+            cueText,
+            indexText,
+            progress,
+          })),
+        );
+      }
+
+      if (moving || lenisBusy) {
+        idleFrames = 0;
+        raf = requestAnimationFrame(tick);
+        return;
+      }
+
+      if (++idleFrames < 20) {
+        raf = requestAnimationFrame(tick);
+        return;
+      }
+
+      running = false;
+    };
+
+    const kick = () => {
       if (!isSnapping) scheduleSnap();
+      if (!running) {
+        running = true;
+        idleFrames = 0;
+        raf = requestAnimationFrame(tick);
+      }
     };
 
     const onResize = () => {
       clearTimeout(resizeTimer);
       resizeTimer = setTimeout(() => {
         measure();
-        render();
+        currentsRef.current = metaRef.current.map((m) => {
+          if (!m || (m.mobile && !m.isScrub)) return 0;
+          const rect = m.wrap.getBoundingClientRect();
+          const raw = Math.min(Math.max(-rect.top, 0), m.pan);
+          return m.isScrub ? (m.pan > 0 ? raw / m.pan : 0) : raw;
+        });
+        kick();
       }, 150);
     };
 
     measure();
-    render();
+    kick();
 
-    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('scroll', kick, { passive: true });
+    window.addEventListener('wheel', kick, { passive: true });
+    window.addEventListener('touchmove', kick, { passive: true });
     window.addEventListener('resize', onResize);
 
     return () => {
-      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('scroll', kick);
+      window.removeEventListener('wheel', kick);
+      window.removeEventListener('touchmove', kick);
       window.removeEventListener('resize', onResize);
+      cancelAnimationFrame(raf);
       clearTimeout(resizeTimer);
       clearTimeout(idleTimer);
       clearTimeout(snapClearTimer);
     };
-  }, [measure, render]);
+  }, [measure, sampleTargets, applyLerped]);
 
   return { activeSlide, slideStates, setWrapRef };
 }
