@@ -410,6 +410,130 @@ function SiteplanPanel({ panel, isPanelActive }) {
   );
 }
 
+// ── Aerial chapter — designed placeholder for the Sept/Oct drone shoot ──
+function AerialPanel({ panel, isPanelActive }) {
+  return (
+    <div className={`deck-panel is-aerial${isPanelActive ? ' is-live' : ''}`}>
+      {panel.bg && <div className="deck-panel-bg" style={{ background: panel.bg }} />}
+      <div className="aerial-frame" aria-hidden="true">
+        <span className="aerial-corner aerial-corner--tl" />
+        <span className="aerial-corner aerial-corner--tr" />
+        <span className="aerial-corner aerial-corner--bl" />
+        <span className="aerial-corner aerial-corner--br" />
+        <span className="aerial-reticle" />
+        {panel.note && <span className="aerial-note">{panel.note}</span>}
+      </div>
+      <div className="deck-panel-content is-center aerial-content">
+        {panel.eyebrow && <div className="deck-eyebrow aerial-eyebrow">{panel.eyebrow}</div>}
+        <Headline text={panel.headline} style={panel.headlineStyle} />
+        {panel.body && <p className="deck-body">{panel.body}</p>}
+      </div>
+    </div>
+  );
+}
+
+// ── Executive floor plan — stylized, illustrative room map ──
+function FloorplanPanel({ panel, isPanelActive }) {
+  return (
+    <div className={`deck-panel is-floorplan${isPanelActive ? ' is-live' : ''}`}>
+      {panel.bg && <div className="deck-panel-bg" style={{ background: panel.bg }} />}
+      {panel.overlay && <div className="deck-panel-overlay" style={{ background: panel.overlay }} />}
+      <div className="deck-panel-content siteplan-content">
+        <div className="siteplan-head">
+          {panel.eyebrow && <div className="deck-eyebrow">{panel.eyebrow}</div>}
+          <Headline text={panel.headline} style={panel.headlineStyle} />
+          {panel.body && <p className="deck-body">{panel.body}</p>}
+          {panel.legend && (
+            <ul className="siteplan-legend">
+              {panel.legend.map((l, i) => (
+                <li key={i} className="sp-legend-item" style={{ '--i': i }}>
+                  <span className={`sp-swatch fp-swatch--${l.key}`} />
+                  {l.label}
+                </li>
+              ))}
+            </ul>
+          )}
+          <PlaceholderNote note={panel.placeholderNote} />
+        </div>
+
+        <div className="siteplan-map">
+          <svg viewBox="0 0 1000 660" className="sp-svg" role="img" aria-label="Illustrative floor plan">
+            {/* Outer shell */}
+            <rect className="fp-shell" x="70" y="80" width="860" height="470" rx="18" />
+
+            {/* Pivot door entry — top center */}
+            <g>
+              <circle className="fp-door" cx="500" cy="80" r="16" />
+              <text className="sp-label sp-label--gold" x="500" y="48">Pivot Door Entry</text>
+            </g>
+
+            {/* King suites — west wing */}
+            <g>
+              <rect className="fp-suite" x="100" y="110" width="120" height="100" rx="8" />
+              <rect className="fp-suite" x="230" y="110" width="120" height="100" rx="8" />
+              <rect className="fp-suite" x="100" y="220" width="120" height="100" rx="8" />
+              <rect className="fp-suite" x="230" y="220" width="120" height="100" rx="8" />
+              <text className="sp-label" x="225" y="170">King Suites</text>
+              <text className="sp-sublabel" x="225" y="192">I – IV · garden & ocean</text>
+            </g>
+
+            {/* Bunk room — east wing */}
+            <g>
+              <rect className="fp-bunk" x="770" y="110" width="130" height="120" rx="8" />
+              <text className="sp-label" x="835" y="165">Bunk Room</text>
+              <text className="sp-sublabel" x="835" y="187">sleeps 6+</text>
+            </g>
+
+            {/* Courtyard — sand heart of the plan */}
+            <g>
+              <circle className="fp-courtyard" cx="500" cy="230" r="88" />
+              <text className="sp-label" x="500" y="225">Courtyard</text>
+              <text className="sp-sublabel" x="500" y="247">sand · palapa</text>
+            </g>
+
+            {/* Social band — living, dining, bar */}
+            <g>
+              <rect className="fp-social" x="130" y="360" width="230" height="130" rx="8" />
+              <text className="sp-label" x="245" y="415">Dining</text>
+              <text className="sp-sublabel" x="245" y="437">seats 14 · open air</text>
+              <rect className="fp-social" x="380" y="360" width="240" height="130" rx="8" />
+              <text className="sp-label" x="500" y="415">Great Room</text>
+              <text className="sp-sublabel" x="500" y="437">living · lounge</text>
+              <rect className="fp-social" x="640" y="360" width="120" height="130" rx="8" />
+              <text className="sp-label" x="700" y="415">Bar</text>
+              <text className="sp-sublabel" x="700" y="437">architectural</text>
+            </g>
+
+            {/* Sun pit + rooftop stair — east */}
+            <g>
+              <circle className="fp-outdoor" cx="845" cy="420" r="55" />
+              <text className="sp-label" x="845" y="415">Sun Pit</text>
+              <text className="sp-sublabel" x="845" y="437">sunken lounge</text>
+              <rect className="fp-stair" x="770" y="260" width="130" height="60" rx="6" />
+              <text className="sp-sublabel" x="835" y="295">stair → rooftops</text>
+            </g>
+
+            {/* Infinity pool + ocean */}
+            <g>
+              <rect className="fp-pool" x="130" y="565" width="630" height="30" rx="15" />
+              <text className="sp-sublabel" x="445" y="586" style={{ fill: 'rgba(255,255,255,0.75)' }}>infinity pool</text>
+              <path className="sp-ocean" d="M0,625 Q250,610 500,620 T1000,615 L1000,660 L0,660 Z" />
+              <text className="sp-ocean-label" x="960" y="650">PACIFIC</text>
+            </g>
+
+            {/* Compass */}
+            <g className="sp-compass">
+              <line x1="940" y1="620" x2="940" y2="585" />
+              <path d="M940,579 L935,591 L945,591 Z" />
+              <text x="940" y="640">N</text>
+            </g>
+          </svg>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Welcome ritual (service list over image) ──
 function ServicePanel({ panel, priority, shouldLoad, isPanelActive }) {
   return (
@@ -461,6 +585,12 @@ export default function DeckPanel({ panel, isActive = false, isNearActive = fals
   }
   if (panel.variant === 'siteplan') {
     return <SiteplanPanel panel={panel} isPanelActive={isPanelActive} />;
+  }
+  if (panel.variant === 'floorplan') {
+    return <FloorplanPanel panel={panel} isPanelActive={isPanelActive} />;
+  }
+  if (panel.variant === 'aerial') {
+    return <AerialPanel panel={panel} isPanelActive={isPanelActive} />;
   }
   if (panel.variant === 'service') {
     return <ServicePanel panel={panel} priority={priority} shouldLoad={shouldLoad} isPanelActive={isPanelActive} />;
@@ -523,7 +653,7 @@ export default function DeckPanel({ panel, isActive = false, isNearActive = fals
           className="deck-panel-overlay"
           style={{
             background:
-              'linear-gradient(0deg, rgba(10,8,6,0.55) 0%, rgba(10,8,6,0) 40%)',
+              'linear-gradient(0deg, rgba(10,8,6,0.75) 0%, rgba(10,8,6,0) 50%)',
           }}
         />
       )}

@@ -1,52 +1,90 @@
-// Villa TimTavio — the deck is organized as a single uninterrupted journey,
-// grouped into the four narrative phases of the blueprint:
+// Villa TimTavio — a chronological, editorial walk-through of the estate,
+// reordered per client feedback (Tim, Jul 2026) into the exact flow:
 //
-//   Phase 1 · Arrival & Reveal
-//   Phase 2 · The First Afternoon
-//   Phase 3 · The 24-Hour Ecosystem
-//   Phase 4 · Executive & Production
+//   The Front Door → The Courtyard → The Pool → Shadows & Architecture
+//   → The Suites → Dining & Living → The Bar → Sun Pits & Rooftops
+//   → The Sunset → (Aerial placeholder) → Executive & Logistics
 //
-// Slides flagged `scrub: true` are driven by scroll progress (CSS var --p),
-// not the horizontal panel-track — used for the signature swivel-door reveal.
+// Slides flagged `scrub: true` are driven by scroll progress (CSS var --p) on
+// desktop only — on mobile they render as a plain full-screen page.
+//
+// NOTE — Dropbox staging assets: images marked `dbx(...)` hotlink from the
+// shared Dropbox folder for staging review. Re-upload the final picks to
+// Cloudinary before production (full-res originals are heavy).
+
+const DBX_BASE = 'https://www.dropbox.com/scl/fo/f4iro5c3t7j2r2vdga2v1';
+const DBX_KEY = 'rlkey=9005v9rodglnqydmzctcqnsbh&raw=1';
+const dbx = (id, path) => `${DBX_BASE}/${id}/${path}?${DBX_KEY}`;
+
+// Curated picks from Merrell's Dropbox (folder / file)
+const IMG = {
+  entranceHero: dbx('AMOdIi0kwnz1X4-Uvfck4Bg', 'Website%20HiRes%20jpgs/L1000048-Edit.jpg'),
+  doorCactus: dbx('AGFWM4Tf2CvAC6gvQnUAPH4', 'Front%20Entrance%20Options/2J7A3494.jpg'),
+  doorOpen: dbx('AN_qsrg30qoGMwUgymeK-Yg', 'Front%20Entrance%20Options/2J7A3531.jpg'),
+  courtyardDay: dbx('AKymdr7IomIIfOU0wXa5IQI', 'Wide%20Open%20View/IMG_2547.jpg'),
+  courtyardDusk: dbx('AMMxpfcJLpo9WsQ3qbCW5Hc', 'Wide%20Open%20View/2J7A3012.jpg'),
+  courtyardPalapa: dbx('AIQ7k7YHzoD_8TnTqFODB00', 'Website%20HiRes%20jpgs/2J7A4259.jpg'),
+  estatePano: dbx('AEi36xD7fiWBNufWB9uan6M', 'Wide%20Open%20View/2J7A3040.jpg'),
+  brutalistFacade: dbx('ABF9CkrnH8xhd21ZrwasaBQ', 'Architecture%20Focus/2J7A3017.jpg'),
+  stairSculpture: dbx('AGr7AuKMuk3jYwxek4pJ-Sc', 'Architecture%20Focus/2J7A3070.jpg'),
+  wallShadow: dbx('AI7th-dp55rLAZu-1rKhofo', 'Architecture%20Focus/2J7A3184.jpg'),
+  bunkHero: dbx('ANge9NId5lHJFKYMLKQVXnM', 'Bunk%20Room/2J7A2603.jpg'),
+  bunkVertical: dbx('AK-zFPCEg4olpSc7HGR9SmQ', 'Bunk%20Room/2J7A2611.jpg'),
+  diningHero: dbx('APxSQrvXmwVYXqPK9r-GlgU', 'Dining%20Area/2J7A2841.jpg'),
+  diningTable: dbx('APXs2BZx7lYe42CG05UByZc', 'Dining%20Area/2J7A2786.jpg'),
+  diningWide: dbx('AD3BIKOpfvAtGsT4ejzs3FA', 'Dining%20Area/2J7A2792.jpg'),
+  barWall: dbx('AE1gC2P1IprNM0jCbxnHwFU', 'Living%20Room%20Bar%20Area/L1010331.jpg'),
+  barWallAlt: dbx('AJHGuo332c7gq8exIZ9933Y', 'Living%20Room%20Bar%20Area/L1010332.jpg'),
+  livingCurve: dbx('AKmW-tkXyah6NkKgAZ_cUgM', 'Living%20Room%20Bar%20Area/L1010322.jpg'),
+  sunsetTerrace: dbx('AB1DEwZwYlm9aw87KVzIH3U', 'Website%20HiRes%20jpgs/IMG_2300.jpg'),
+  beachSunset: dbx('AK7oMpxquoP2Q2KSBn_lBCA', 'Surrounding%20Location%20Views/2J7A2924.jpg'),
+  estateNight: dbx('ANhgm1i-crE_FHRqOE0Ifd4', 'Website%20HiRes%20jpgs/L1010043.jpg'),
+};
 
 export const PHASES = [
-  { key: 'arrival', label: 'I · Arrival & Reveal', startSlide: 1 },
-  { key: 'afternoon', label: 'II · The First Afternoon', startSlide: 6 },
-  { key: 'ecosystem', label: 'III · The 24-Hour Ecosystem', startSlide: 11 },
-  { key: 'executive', label: 'IV · Executive & Production', startSlide: 17 },
+  { key: 'arrival', label: 'I · The Arrival', startSlide: 1 },
+  { key: 'estate', label: 'II · The Estate', startSlide: 4 },
+  { key: 'residences', label: 'III · The Residences', startSlide: 8 },
+  { key: 'dining', label: 'IV · Dining & Social', startSlide: 11 },
+  { key: 'evening', label: 'V · The Evening', startSlide: 14 },
+  { key: 'executive', label: 'VI · Executive & Logistics', startSlide: 17 },
 ];
 
 export const RAIL_ITEMS = [
   { slide: 0, title: 'Cover', gapBefore: false },
-  // Phase I — Arrival & Reveal
-  { slide: 1, title: 'The Threshold', gapBefore: true },
-  { slide: 2, title: 'The Swivel', gapBefore: false },
-  { slide: 3, title: 'The Architecture', gapBefore: false },
-  { slide: 4, title: 'The Reveal', gapBefore: false },
+  // Phase I — The Arrival
+  { slide: 1, title: 'The Front Door', gapBefore: true },
+  { slide: 2, title: 'The Reveal', gapBefore: false },
+  { slide: 3, title: 'The Courtyard', gapBefore: false },
+  // Phase II — The Estate
+  { slide: 4, title: 'The Pool', gapBefore: true },
   { slide: 5, title: 'The View', gapBefore: false },
-  // Phase II — The First Afternoon
-  { slide: 6, title: 'The Welcome', gapBefore: true },
-  { slide: 7, title: 'The Table', gapBefore: false },
-  { slide: 8, title: 'The Suite', gapBefore: false },
+  { slide: 6, title: 'Shadows & Structure', gapBefore: false },
+  { slide: 7, title: 'The Craft', gapBefore: false },
+  // Phase III — The Residences
+  { slide: 8, title: 'The Suites', gapBefore: true },
   { slide: 9, title: 'The Bunk Room', gapBefore: false },
-  { slide: 10, title: 'The Craft', gapBefore: false },
-  // Phase III — The 24-Hour Ecosystem
-  { slide: 11, title: 'Culinary Program', gapBefore: true },
-  { slide: 12, title: 'Premium Amenities', gapBefore: false },
-  { slide: 13, title: 'The Pit', gapBefore: false },
-  { slide: 14, title: 'The Rooftop', gapBefore: false },
-  { slide: 15, title: 'The Garden', gapBefore: false },
-  { slide: 16, title: 'The Location', gapBefore: false },
-  // Phase IV — Executive & Production
-  { slide: 17, title: 'Production Footprint', gapBefore: true },
-  { slide: 18, title: 'The Retreat', gapBefore: false },
-  { slide: 19, title: 'Closing', gapBefore: true },
+  { slide: 10, title: 'The Service', gapBefore: false },
+  // Phase IV — Dining & Social
+  { slide: 11, title: 'The Table', gapBefore: true },
+  { slide: 12, title: 'Culinary Program', gapBefore: false },
+  { slide: 13, title: 'The Bar', gapBefore: false },
+  // Phase V — The Evening
+  { slide: 14, title: 'The Sun Pit', gapBefore: true },
+  { slide: 15, title: 'The Rooftop', gapBefore: false },
+  { slide: 16, title: 'The Sunset', gapBefore: false },
+  // Aerial chapter + Phase VI — Executive & Logistics
+  { slide: 17, title: 'The Aerial Chapter', gapBefore: true },
+  { slide: 18, title: 'The Floor Plan', gapBefore: false },
+  { slide: 19, title: 'Production Footprint', gapBefore: false },
+  { slide: 20, title: 'The Retreat', gapBefore: false },
+  { slide: 21, title: 'Closing', gapBefore: true },
 ];
 
 export const NAV_LINKS = [
-  { href: '#slide-2', label: 'Arrival' },
-  { href: '#slide-11', label: 'Ecosystem' },
-  { href: '#slide-17', label: 'Production' },
+  { href: '#slide-1', label: 'Arrival' },
+  { href: '#slide-11', label: 'Dining' },
+  { href: '#slide-18', label: 'Executive' },
 ];
 
 export const SLIDES = [
@@ -64,54 +102,49 @@ export const SLIDES = [
         imageUrl:
           'https://res.cloudinary.com/dgvqx0qje/image/upload/v1782492938/hero-image_1_tzm5b5.webp',
         preload: true,
-        kenBurns: true,
         bg: 'linear-gradient(150deg, rgb(18,14,8) 0%, rgb(38,28,14) 45%, rgb(42,54,40) 100%)',
-        overlay: 'linear-gradient(0deg, rgba(20,14,10,0.9) 0%, rgba(20,14,10,0.25) 55%, rgba(20,14,10,0.1) 100%)',
+        overlay: 'linear-gradient(0deg, rgba(20,14,10,0.92) 0%, rgba(20,14,10,0.35) 55%, rgba(20,14,10,0.15) 100%)',
         eyebrow: 'Puerto Escondido, Oaxaca · Mexico',
         headline: 'Where the Pacific\nbegins to whisper.',
-        body: 'An uninterrupted walkthrough — from the first gate to the open horizon. Scroll to begin.',
+        body: 'A walk through the estate — from the front door to the last light. Scroll to begin.',
         coverCue: true,
       },
     ],
   },
 
   // ═════════════════════════════════════════════════════════════
-  // PHASE I · ARRIVAL & REVEAL
+  // PHASE I · THE ARRIVAL
   // ═════════════════════════════════════════════════════════════
 
-  // 1 · THE THRESHOLD — 24hr gated sanctuary → garden path
+  // 1 · THE FRONT DOOR
   {
     id: 'slide-1',
     zIndex: 2,
-    meta: { phase: 'I · Arrival & Reveal', page: 'The Threshold' },
+    meta: { phase: 'I · The Arrival', page: 'The Front Door' },
     panels: [
       {
         variant: 'text',
-        publicId: 'the-arrival-image-1_1_gdh6kx',
-        imageUrl:
-          'https://res.cloudinary.com/dgvqx0qje/image/upload/v1782492909/the-arrival-image-1_1_gdh6kx.webp',
+        imageUrl: IMG.entranceHero,
         preload: true,
-        kenBurns: true,
         bg: 'linear-gradient(160deg, rgb(44,30,16) 0%, rgb(68,48,28) 100%)',
-        overlay: 'linear-gradient(0deg, rgba(20,14,8,0.85) 0%, rgba(20,14,8,0.1) 60%)',
-        headline: 'A sanctuary that\nnever closes.',
-        body: 'The journey begins at a secure, 24-hour gated entrance. The massive exterior gates swing open to a lush, native Oaxacan garden path that guides you toward the main structure.',
+        overlay: 'linear-gradient(0deg, rgba(20,14,8,0.88) 0%, rgba(20,14,8,0.25) 60%)',
+        headline: 'It begins\nat the door.',
+        body: 'Behind a secure, 24-hour gated perimeter, a carved timber curve holds the signature pivot door — the only threshold between the outside world and the estate.',
       },
       {
         variant: 'media',
-        publicId: 'the-arrival-image-2_1_db7fiu',
-        imageUrl:
-          'https://res.cloudinary.com/dgvqx0qje/image/upload/v1782492917/the-arrival-image-2_1_db7fiu.webp',
+        imageUrl: IMG.doorCactus,
+        mediaFit: 'cover',
         preload: true,
         icon: 'image',
-        caption: 'The gated approach — native planting and the path to the house',
+        caption: 'The pivot door, resting in the timber curve',
       },
       {
         variant: 'vertical',
-        publicId: 'the-arrival-video_x7xzqy',
         resourceType: 'video',
+        // Trimmed −2.6s: power cord visible at the original ending (Merrell's note)
         imageUrl:
-          'https://res.cloudinary.com/dgvqx0qje/video/upload/f_mp4,vc_h264/v1782484037/the-arrival-video_x7xzqy',
+          'https://res.cloudinary.com/dgvqx0qje/video/upload/f_mp4,vc_h264,eo_25.5/v1782484037/the-arrival-video_x7xzqy',
         mediaFit: 'cover',
         preload: true,
         caption: 'Walking the garden path — the outside world falls away',
@@ -119,102 +152,81 @@ export const SLIDES = [
     ],
   },
 
-  // 2 · THE SWIVEL — signature 16ft pivoting door reveal (scroll-scrubbed)
+  // 2 · THE REVEAL — signature pivot-door reveal (desktop scroll-scrub)
   {
     id: 'slide-2',
     zIndex: 3,
     scrub: true,
     scrubAmount: 1.35,
-    meta: { phase: 'I · Arrival & Reveal', page: 'The Swivel' },
+    meta: { phase: 'I · The Arrival', page: 'The Reveal' },
     panels: [
       {
         variant: 'swivel',
         doorImageUrl:
           'https://res.cloudinary.com/dgvqx0qje/image/upload/v1782492909/the-arrival-image-1_1_gdh6kx.webp',
-        revealPublicId: 'the-view-1_fa43z8',
-        revealImageUrl:
-          'https://res.cloudinary.com/dgvqx0qje/image/upload/v1782491340/the-view-1_fa43z8.webp',
+        revealImageUrl: IMG.courtyardPalapa,
         preload: true,
         bg: 'linear-gradient(150deg, rgb(10,18,26) 0%, rgb(20,40,54) 60%, rgb(28,56,66) 100%)',
-        eyebrow: 'A 16-foot custom architectural swivel door',
+        eyebrow: 'The signature pivot door',
         headline: 'One pivot, and\neverything changes.',
-        body: 'As the door turns, the environment shifts instantly — ambient music already playing, house staff awaiting you with signature cocktails and chilled, scented towels.',
+        body: 'The door turns, and the estate opens — the courtyard, the palapa, and the Pacific light beyond. Ambient music is already playing; the first drink is already being poured.',
         hint: 'Scroll to open the door',
       },
     ],
   },
 
-  // 3 · THE ARCHITECTURE (supporting)
+  // 3 · THE COURTYARD
   {
     id: 'slide-3',
     zIndex: 4,
-    meta: { phase: 'I · Arrival & Reveal', page: 'The Architecture' },
+    meta: { phase: 'I · The Arrival', page: 'The Courtyard' },
     panels: [
       {
         variant: 'text',
-        publicId: 'the-architecture-1_1_axxtlw',
-        imageUrl:
-          'https://res.cloudinary.com/dgvqx0qje/image/upload/v1782493291/the-architecture-1_1_axxtlw.webp',
+        imageUrl: IMG.courtyardDay,
         preload: true,
-        kenBurns: true,
-        bg: 'linear-gradient(160deg, rgb(22,20,18) 0%, rgb(38,36,32) 100%)',
-        overlay: 'linear-gradient(0deg, rgba(16,14,12,0.88) 0%, rgba(16,14,12,0.1) 60%)',
-        headline: 'Built from the coast.\nShaped by the light.',
-        body: 'The structure responds to its environment — stone, timber, and open air working with the Pacific rather than against it.',
+        bg: 'linear-gradient(160deg, rgb(36,28,18) 0%, rgb(58,46,30) 100%)',
+        overlay: 'linear-gradient(0deg, rgba(20,14,8,0.88) 0%, rgba(20,14,8,0.2) 60%)',
+        headline: 'The courtyard\nholds the day.',
+        body: 'Sand underfoot, native Oaxacan planting against raw concrete, and the palapa at the center — the courtyard is the estate’s open-air heart.',
       },
       {
         variant: 'media',
-        publicId: 'the-architecture-2_1_dshryn',
-        imageUrl:
-          'https://res.cloudinary.com/dgvqx0qje/image/upload/v1782493282/the-architecture-2_1_dshryn.webp',
+        imageUrl: IMG.courtyardDusk,
+        mediaFit: 'cover',
         preload: true,
         icon: 'image',
-        kind: 'Image — Architecture Focus',
-        caption: 'Curved concrete form — structure and light',
+        caption: 'The courtyard at dusk — lanterns on, day cooling into evening',
       },
       {
         variant: 'gallery',
         columns: [
           {
-            publicId: 'the-architecture-3-vertical_1_z2pf0u',
+            publicId: 'the-garden-image-1_arfey5',
             imageUrl:
-              'https://res.cloudinary.com/dgvqx0qje/image/upload/v1782493283/the-architecture-3-vertical_1_z2pf0u.webp',
+              'https://res.cloudinary.com/dgvqx0qje/image/upload/v1782491038/the-garden-image-1_arfey5.webp',
             fit: 'cover',
           },
           {
-            publicId: 'the-architecture-4-vertical_1_mvgply',
+            publicId: 'the-garden-image-2_vm1d3j',
             imageUrl:
-              'https://res.cloudinary.com/dgvqx0qje/image/upload/v1782493283/the-architecture-4-vertical_1_mvgply.webp',
+              'https://res.cloudinary.com/dgvqx0qje/image/upload/v1782491040/the-garden-image-2_vm1d3j.webp',
             fit: 'cover',
           },
         ],
       },
-      {
-        variant: 'vertical',
-        publicId: 'the-architecture-5_1_ccrj7o',
-        imageUrl:
-          'https://res.cloudinary.com/dgvqx0qje/image/upload/v1782493282/the-architecture-5_1_ccrj7o.webp',
-        mediaFit: 'cover',
-        preload: true,
-      },
-      {
-        variant: 'vertical',
-        publicId: 'the-architecture-video-1_mppjer',
-        resourceType: 'video',
-        imageUrl:
-          'https://res.cloudinary.com/dgvqx0qje/video/upload/f_mp4,vc_h264/v1782484911/the-architecture-video-1_mppjer',
-        mediaFit: 'cover',
-        icon: 'video',
-        caption: 'Architecture walkthrough — form, material, and light',
-      },
     ],
   },
 
-  // 4 · THE REVEAL — infinity pool bleeds into the ocean
+  // ═════════════════════════════════════════════════════════════
+  // PHASE II · THE ESTATE
+  // ═════════════════════════════════════════════════════════════
+
+  // 4 · THE POOL — bleeding into the ocean
   {
     id: 'slide-4',
     zIndex: 5,
-    meta: { phase: 'I · Arrival & Reveal', page: 'The Reveal' },
+    meta: { phase: 'II · The Estate', page: 'The Pool' },
     panels: [
       {
         variant: 'text',
@@ -222,39 +234,40 @@ export const SLIDES = [
         imageUrl:
           'https://res.cloudinary.com/dgvqx0qje/image/upload/v1782489655/the-pool-1_sflzic.webp',
         preload: true,
-        kenBurns: true,
         bg: 'linear-gradient(160deg, rgb(12,22,34) 0%, rgb(22,38,54) 100%)',
-        overlay: 'linear-gradient(0deg, rgba(8,16,26,0.85) 0%, rgba(8,16,26,0.1) 60%)',
+        overlay: 'linear-gradient(0deg, rgba(8,16,26,0.88) 0%, rgba(8,16,26,0.2) 60%)',
         headline: 'The pool starts\nright at your feet.',
         body: 'The doors open completely to a sweeping, unobstructed vista. The infinity pool bleeds directly into the beach and the Pacific Ocean. It is pure magic.',
       },
       {
         variant: 'media',
-        publicId: 'the-pool-video-horizontal_rpcnuf',
         resourceType: 'video',
+        // Trimmed −2.5s: work light + cord on the deck at the original ending (Merrell's note)
         imageUrl:
-          'https://res.cloudinary.com/dgvqx0qje/video/upload/f_mp4,vc_h264/v1782489646/the-pool-video-horizontal_rpcnuf',
+          'https://res.cloudinary.com/dgvqx0qje/video/upload/f_mp4,vc_h264,eo_9/v1782489646/the-pool-video-horizontal_rpcnuf',
         mediaFit: 'cover',
         preload: true,
         caption: 'The infinity edge — water surface dissolving into the horizon',
       },
       {
+        // Portrait aerial — shown contained (not cropped) so the full
+        // pool-to-ocean composition reads on wide screens.
         variant: 'vertical',
         publicId: 'the-pool-vertical-image_jjlxtz',
         imageUrl:
           'https://res.cloudinary.com/dgvqx0qje/image/upload/v1782489609/the-pool-vertical-image_jjlxtz.webp',
-        mediaFit: 'cover',
+        bg: 'linear-gradient(160deg, rgb(10,18,28) 0%, rgb(18,32,46) 55%, rgb(12,20,30) 100%)',
         preload: true,
         caption: 'The pool from above — symmetry and open Pacific',
       },
     ],
   },
 
-  // 5 · THE VIEW (wide panoramic)
+  // 5 · THE VIEW
   {
     id: 'slide-5',
     zIndex: 6,
-    meta: { phase: 'I · Arrival & Reveal', page: 'The View' },
+    meta: { phase: 'II · The Estate', page: 'The View' },
     panels: [
       {
         variant: 'text',
@@ -262,15 +275,13 @@ export const SLIDES = [
         imageUrl:
           'https://res.cloudinary.com/dgvqx0qje/image/upload/v1782491337/the-view-text-cover_pkt5kv.webp',
         preload: true,
-        kenBurns: true,
         bg: 'linear-gradient(160deg, rgb(16,24,34) 0%, rgb(26,40,56) 100%)',
-        overlay: 'linear-gradient(0deg, rgba(8,14,20,0.75) 0%, rgba(8,14,20,0.15) 55%, rgba(8,14,20,0.05) 100%)',
+        overlay: 'linear-gradient(0deg, rgba(8,14,20,0.82) 0%, rgba(8,14,20,0.25) 55%, rgba(8,14,20,0.1) 100%)',
         headline: 'Open this way.',
         body: 'The panoramic sweep — coast, canopy, and open Pacific.',
       },
       {
         variant: 'media',
-        publicId: 'the-view-video_ccotxy',
         resourceType: 'video',
         imageUrl:
           'https://res.cloudinary.com/dgvqx0qje/video/upload/f_mp4,vc_h264/v1782491358/the-view-video_ccotxy',
@@ -281,173 +292,55 @@ export const SLIDES = [
     ],
   },
 
-  // ═════════════════════════════════════════════════════════════
-  // PHASE II · THE FIRST AFTERNOON
-  // ═════════════════════════════════════════════════════════════
-
-  // 6 · THE WELCOME — open-air bar, chef, ceviche, tableside guacamole
+  // 6 · SHADOWS & BRUTALIST ARCHITECTURE
   {
     id: 'slide-6',
     zIndex: 7,
-    meta: { phase: 'II · The First Afternoon', page: 'The Welcome' },
+    meta: { phase: 'II · The Estate', page: 'Shadows & Structure' },
     panels: [
       {
         variant: 'text',
-        publicId: 'the-living-room-text-cover_ikqesg',
+        publicId: 'the-architecture-1_1_axxtlw',
         imageUrl:
-          'https://res.cloudinary.com/dgvqx0qje/image/upload/v1782487706/the-living-room-text-cover_ikqesg.webp',
+          'https://res.cloudinary.com/dgvqx0qje/image/upload/v1782493291/the-architecture-1_1_axxtlw.webp',
         preload: true,
-        kenBurns: true,
-        bg: 'linear-gradient(160deg, rgb(36,24,12) 0%, rgb(58,42,22) 100%)',
-        overlay: 'linear-gradient(0deg, rgba(22,14,6,0.88) 0%, rgba(22,14,6,0.1) 60%)',
-        headline: 'The first drink is\nalready poured.',
-        body: 'The host escorts you to the open-air architectural bar. While you sip, the chef is already serving fresh, local ceviche and preparing artisanal guacamole tableside.',
+        bg: 'linear-gradient(160deg, rgb(22,20,18) 0%, rgb(38,36,32) 100%)',
+        overlay: 'linear-gradient(0deg, rgba(16,14,12,0.9) 0%, rgba(16,14,12,0.2) 60%)',
+        headline: 'Shadow is a\nmaterial here.',
+        body: 'Raw concrete, carved timber, and open sky — the architecture is brutalist in structure and soft in light, drawn and redrawn by the sun across the day.',
       },
       {
         variant: 'media',
-        publicId: 'the-living-room-image-1_1_eb7ch4',
-        imageUrl:
-          'https://res.cloudinary.com/dgvqx0qje/image/upload/v1782487926/the-living-room-image-1_1_eb7ch4.webp',
+        imageUrl: IMG.brutalistFacade,
+        mediaFit: 'cover',
         preload: true,
         icon: 'image',
-        caption: 'The open-air bar — the social heart of the arrival',
-      },
-      {
-        variant: 'service',
-        bg: 'linear-gradient(160deg, rgb(30,20,10) 0%, rgb(52,36,18) 100%)',
-        overlay: 'linear-gradient(0deg, rgba(18,12,6,0.6) 0%, rgba(18,12,6,0.35) 100%)',
-        publicId: 'the-living-romm-2_zm7tck',
-        imageUrl:
-          'https://res.cloudinary.com/dgvqx0qje/image/upload/v1782487704/the-living-romm-2_zm7tck.webp',
-        eyebrow: 'The welcome ritual',
-        headline: 'Arrival, served.',
-        items: [
-          { title: 'Signature cocktails', desc: 'Poured the moment the door opens.' },
-          { title: 'Fresh local ceviche', desc: 'Plated by the chef as you settle in.' },
-          { title: 'Guacamole, tableside', desc: 'Prepared in front of you, to taste.' },
-          { title: 'Chilled scented towels', desc: 'Offered before you set down a bag.' },
-        ],
-        placeholderNote: 'Recommended new photography: chef service + ceviche/guacamole detail',
-      },
-    ],
-  },
-
-  // 7 · THE TABLE — transition + welcome dinner under the stars
-  {
-    id: 'slide-7',
-    zIndex: 8,
-    meta: { phase: 'II · The First Afternoon', page: 'The Table' },
-    panels: [
-      {
-        variant: 'text',
-        publicId: 'the-table-1_hbdc4f',
-        imageUrl:
-          'https://res.cloudinary.com/dgvqx0qje/image/upload/v1782488422/the-table-1_hbdc4f.webp',
-        preload: true,
-        kenBurns: true,
-        bg: 'linear-gradient(160deg, rgb(20,26,16) 0%, rgb(34,44,26) 100%)',
-        overlay: 'linear-gradient(0deg, rgba(12,18,8,0.88) 0%, rgba(12,18,8,0.1) 60%)',
-        headline: 'No check-in.\nOnly dinner.',
-        body: 'There is no friction. One by one, guests are discreetly escorted to their suites — luggage already delivered — flowing effortlessly into an open-air welcome dinner under the stars.',
+        caption: 'The concrete scoop — structure meeting the evening sky',
       },
       {
         variant: 'gallery',
         columns: [
-          {
-            publicId: 'the-table-2_kjphqd',
-            imageUrl:
-              'https://res.cloudinary.com/dgvqx0qje/image/upload/v1782488417/the-table-2_kjphqd.webp',
-            fit: 'cover',
-          },
-          {
-            publicId: 'the-table-3_olchls',
-            imageUrl:
-              'https://res.cloudinary.com/dgvqx0qje/image/upload/v1782488411/the-table-3_olchls.webp',
-            fit: 'cover',
-          },
+          { imageUrl: IMG.stairSculpture, fit: 'cover' },
+          { imageUrl: IMG.wallShadow, fit: 'cover' },
         ],
-      },
-    ],
-  },
-
-  // 8 · THE SUITE — private suites, luggage awaiting
-  {
-    id: 'slide-8',
-    zIndex: 9,
-    meta: { phase: 'II · The First Afternoon', page: 'The Suite' },
-    panels: [
-      {
-        variant: 'text',
-        publicId: 'the-suite-1_tg98wf',
-        imageUrl:
-          'https://res.cloudinary.com/dgvqx0qje/image/upload/v1782488828/the-suite-1_tg98wf.webp',
-        preload: true,
-        kenBurns: true,
-        bg: 'linear-gradient(160deg, rgb(32,24,16) 0%, rgb(54,42,28) 100%)',
-        overlay: 'linear-gradient(0deg, rgba(18,12,8,0.88) 0%, rgba(18,12,8,0.1) 60%)',
-        headline: 'Your room was\nready before you.',
-        body: 'Each guest is escorted to a private suite where their luggage already awaits — a room that opens to the garden and the sound of the Pacific.',
-      },
-      {
-        variant: 'media',
-        publicId: 'the-suite-2_qcdyjz',
-        imageUrl:
-          'https://res.cloudinary.com/dgvqx0qje/image/upload/v1782488831/the-suite-2_qcdyjz.webp',
-        preload: true,
-        icon: 'image',
-        caption: 'Suite interior — bed, light, and the view beyond',
       },
       {
         variant: 'vertical',
-        publicId: 'the-suite-video_z9l84e',
         resourceType: 'video',
         imageUrl:
-          'https://res.cloudinary.com/dgvqx0qje/video/upload/f_mp4,vc_h264/v1782488862/the-suite-video_z9l84e',
+          'https://res.cloudinary.com/dgvqx0qje/video/upload/f_mp4,vc_h264/v1782484911/the-architecture-video-1_mppjer',
         mediaFit: 'cover',
-        preload: true,
-        caption: 'Suite walkthrough — from entrance to terrace',
+        icon: 'video',
+        caption: 'Architecture walkthrough — form, material, and light',
       },
     ],
   },
 
-  // 9 · THE BUNK ROOM — group / family sleeping capacity
+  // 7 · THE CRAFT — design details
   {
-    id: 'slide-9',
-    zIndex: 10,
-    meta: { phase: 'II · The First Afternoon', page: 'The Bunk Room' },
-    panels: [
-      {
-        variant: 'text',
-        // TODO: swap for Dropbox → "Bunk Room" imagery once on Cloudinary.
-        publicId: 'the-suite-1_tg98wf',
-        imageUrl:
-          'https://res.cloudinary.com/dgvqx0qje/image/upload/v1782488828/the-suite-1_tg98wf.webp',
-        preload: true,
-        kenBurns: true,
-        bg: 'linear-gradient(160deg, rgb(26,22,16) 0%, rgb(46,38,26) 100%)',
-        overlay: 'linear-gradient(0deg, rgba(16,12,8,0.9) 0%, rgba(16,12,8,0.15) 60%)',
-        headline: 'Room for everyone\nyou brought.',
-        body: 'A crafted bunk room extends the estate for families and larger groups — the same materials and calm as the suites, scaled for togetherness.',
-      },
-      {
-        variant: 'media',
-        // TODO: swap for Dropbox → "Bunk Room" imagery once on Cloudinary.
-        publicId: 'the-suite-2_qcdyjz',
-        imageUrl:
-          'https://res.cloudinary.com/dgvqx0qje/image/upload/v1782488831/the-suite-2_qcdyjz.webp',
-        preload: true,
-        icon: 'image',
-        caption: 'The bunk room — additional sleeping capacity for groups',
-        placeholderNote: 'Placeholder — use Dropbox → "Bunk Room" images (add to Cloudinary)',
-      },
-    ],
-  },
-
-  // 10 · THE CRAFT (supporting)
-  {
-    id: 'slide-10',
-    zIndex: 11,
-    meta: { phase: 'II · The First Afternoon', page: 'The Craft' },
+    id: 'slide-7',
+    zIndex: 8,
+    meta: { phase: 'II · The Estate', page: 'The Craft' },
     panels: [
       {
         variant: 'text',
@@ -455,9 +348,8 @@ export const SLIDES = [
         imageUrl:
           'https://res.cloudinary.com/dgvqx0qje/image/upload/v1782489224/the-craft-1_xjgwml.webp',
         preload: true,
-        kenBurns: true,
         bg: 'linear-gradient(160deg, rgb(28,26,22) 0%, rgb(48,44,36) 100%)',
-        overlay: 'linear-gradient(0deg, rgba(16,14,10,0.88) 0%, rgba(16,14,10,0.1) 60%)',
+        overlay: 'linear-gradient(0deg, rgba(16,14,10,0.9) 0%, rgba(16,14,10,0.2) 60%)',
         headline: 'The details were not\ndecided. They were found.',
         body: 'Every surface, texture, and object inside was chosen for a reason that goes beyond appearance.',
       },
@@ -482,23 +374,155 @@ export const SLIDES = [
   },
 
   // ═════════════════════════════════════════════════════════════
-  // PHASE III · THE 24-HOUR ECOSYSTEM
+  // PHASE III · THE RESIDENCES
   // ═════════════════════════════════════════════════════════════
 
-  // 11 · THE CULINARY PROGRAM — round-the-clock F&B
+  // 8 · THE SUITES
+  {
+    id: 'slide-8',
+    zIndex: 9,
+    meta: { phase: 'III · The Residences', page: 'The Suites' },
+    panels: [
+      {
+        variant: 'text',
+        publicId: 'the-suite-1_tg98wf',
+        imageUrl:
+          'https://res.cloudinary.com/dgvqx0qje/image/upload/v1782488828/the-suite-1_tg98wf.webp',
+        preload: true,
+        bg: 'linear-gradient(160deg, rgb(32,24,16) 0%, rgb(54,42,28) 100%)',
+        overlay: 'linear-gradient(0deg, rgba(18,12,8,0.9) 0%, rgba(18,12,8,0.2) 60%)',
+        headline: 'Your room was\nready before you.',
+        body: 'Each guest is escorted to a private suite where their luggage already awaits — a room that opens to the garden and the sound of the Pacific.',
+      },
+      {
+        variant: 'media',
+        publicId: 'the-suite-2_qcdyjz',
+        imageUrl:
+          'https://res.cloudinary.com/dgvqx0qje/image/upload/v1782488831/the-suite-2_qcdyjz.webp',
+        preload: true,
+        icon: 'image',
+        caption: 'Suite interior — bed, light, and the view beyond',
+      },
+      {
+        variant: 'vertical',
+        resourceType: 'video',
+        imageUrl:
+          'https://res.cloudinary.com/dgvqx0qje/video/upload/f_mp4,vc_h264/v1782488862/the-suite-video_z9l84e',
+        mediaFit: 'cover',
+        preload: true,
+        caption: 'Suite walkthrough — from entrance to terrace',
+      },
+    ],
+  },
+
+  // 9 · THE BUNK ROOM
+  {
+    id: 'slide-9',
+    zIndex: 10,
+    meta: { phase: 'III · The Residences', page: 'The Bunk Room' },
+    panels: [
+      {
+        variant: 'text',
+        imageUrl: IMG.bunkHero,
+        preload: true,
+        bg: 'linear-gradient(160deg, rgb(26,22,16) 0%, rgb(46,38,26) 100%)',
+        overlay: 'linear-gradient(0deg, rgba(16,12,8,0.9) 0%, rgba(16,12,8,0.25) 60%)',
+        headline: 'Room for everyone\nyou brought.',
+        body: 'A crafted bunk room extends the estate for families and larger groups — the same materials and calm as the suites, scaled for togetherness.',
+      },
+      {
+        variant: 'vertical',
+        imageUrl: IMG.bunkVertical,
+        mediaFit: 'cover',
+        preload: true,
+        caption: 'The bunk room — lofted beds in concrete and timber',
+      },
+    ],
+  },
+
+  // 10 · THE SERVICE — turndown, amenities, staff
+  {
+    id: 'slide-10',
+    zIndex: 11,
+    meta: { phase: 'III · The Residences', page: 'The Service' },
+    panels: [
+      {
+        variant: 'amenities',
+        imageUrl: IMG.barWallAlt,
+        preload: true,
+        bg: 'linear-gradient(160deg, rgb(26,22,18) 0%, rgb(44,36,28) 100%)',
+        overlay: 'linear-gradient(0deg, rgba(16,12,8,0.92) 0%, rgba(16,12,8,0.6) 100%)',
+        eyebrow: 'Hyper-detailed hospitality',
+        headline: 'Anticipated,\nnever asked for.',
+        items: [
+          { title: 'Impeccable turndown', desc: 'Suites reset each evening, quietly and completely.' },
+          { title: 'Regional bath amenities', desc: 'Custom, locally sourced, replenished daily.' },
+          { title: 'Intuitive house staff', desc: 'Highly trained to anticipate every movement.' },
+        ],
+        placeholderNote: 'Recommended new photography: turndown detail + bath amenity flat-lay',
+      },
+    ],
+  },
+
+  // ═════════════════════════════════════════════════════════════
+  // PHASE IV · DINING & SOCIAL
+  // ═════════════════════════════════════════════════════════════
+
+  // 11 · THE TABLE — dining & living spaces
   {
     id: 'slide-11',
     zIndex: 12,
-    meta: { phase: 'III · The 24-Hour Ecosystem', page: 'Culinary Program' },
+    meta: { phase: 'IV · Dining & Social', page: 'The Table' },
+    panels: [
+      {
+        variant: 'text',
+        imageUrl: IMG.diningHero,
+        preload: true,
+        bg: 'linear-gradient(160deg, rgb(20,26,16) 0%, rgb(34,44,26) 100%)',
+        overlay: 'linear-gradient(0deg, rgba(12,18,8,0.9) 0%, rgba(12,18,8,0.2) 60%)',
+        headline: 'No check-in.\nOnly dinner.',
+        body: 'There is no friction. Guests flow from their suites straight into an open-air dinner beneath the sculpted stair — the table set, the ocean just beyond.',
+      },
+      {
+        variant: 'media',
+        imageUrl: IMG.diningWide,
+        mediaFit: 'cover',
+        preload: true,
+        icon: 'image',
+        caption: 'The dining room — open to the courtyard and the sea air',
+      },
+      {
+        variant: 'gallery',
+        columns: [
+          {
+            publicId: 'the-table-2_kjphqd',
+            imageUrl:
+              'https://res.cloudinary.com/dgvqx0qje/image/upload/v1782488417/the-table-2_kjphqd.webp',
+            fit: 'cover',
+          },
+          {
+            publicId: 'the-table-3_olchls',
+            imageUrl:
+              'https://res.cloudinary.com/dgvqx0qje/image/upload/v1782488411/the-table-3_olchls.webp',
+            fit: 'cover',
+          },
+        ],
+      },
+    ],
+  },
+
+  // 12 · THE CULINARY PROGRAM — round-the-clock F&B
+  {
+    id: 'slide-12',
+    zIndex: 13,
+    meta: { phase: 'IV · Dining & Social', page: 'Culinary Program' },
     panels: [
       {
         variant: 'program',
-        publicId: 'the-table-2_kjphqd',
-        imageUrl:
-          'https://res.cloudinary.com/dgvqx0qje/image/upload/v1782488417/the-table-2_kjphqd.webp',
+        imageUrl: IMG.diningTable,
         preload: true,
         bg: 'linear-gradient(160deg, rgb(24,16,10) 0%, rgb(42,28,16) 55%, rgb(20,16,26) 100%)',
-        overlay: 'linear-gradient(0deg, rgba(14,10,6,0.9) 0%, rgba(14,10,6,0.55) 100%)',
+        overlay: 'linear-gradient(0deg, rgba(14,10,6,0.92) 0%, rgba(14,10,6,0.6) 100%)',
         eyebrow: 'Food & beverage, 24 hours a day',
         headline: 'The kitchen never\nfully sleeps.',
         body: 'A seamless, continuous culinary experience that follows the day around the clock.',
@@ -512,37 +536,62 @@ export const SLIDES = [
     ],
   },
 
-  // 12 · PREMIUM AMENITIES — turndown, bath amenities, house staff
+  // 13 · THE ARCHITECTURAL BAR
   {
-    id: 'slide-12',
-    zIndex: 13,
-    meta: { phase: 'III · The 24-Hour Ecosystem', page: 'Premium Amenities' },
+    id: 'slide-13',
+    zIndex: 14,
+    meta: { phase: 'IV · Dining & Social', page: 'The Bar' },
     panels: [
       {
-        variant: 'amenities',
-        publicId: 'the-suite-2_qcdyjz',
-        imageUrl:
-          'https://res.cloudinary.com/dgvqx0qje/image/upload/v1782488831/the-suite-2_qcdyjz.webp',
+        variant: 'text',
+        imageUrl: IMG.barWall,
         preload: true,
-        bg: 'linear-gradient(160deg, rgb(26,22,18) 0%, rgb(44,36,28) 100%)',
-        overlay: 'linear-gradient(0deg, rgba(16,12,8,0.9) 0%, rgba(16,12,8,0.55) 100%)',
-        eyebrow: 'Hyper-detailed hospitality',
-        headline: 'Anticipated,\nnever asked for.',
-        items: [
-          { title: 'Impeccable turndown', desc: 'Suites reset each evening, quietly and completely.' },
-          { title: 'Regional bath amenities', desc: 'Custom, locally sourced, replenished daily.' },
-          { title: 'Intuitive house staff', desc: 'Highly trained to anticipate every movement.' },
+        bg: 'linear-gradient(160deg, rgb(36,24,12) 0%, rgb(58,42,22) 100%)',
+        overlay: 'linear-gradient(0deg, rgba(22,14,6,0.9) 0%, rgba(22,14,6,0.2) 60%)',
+        headline: 'The first drink is\nalready poured.',
+        body: 'The architectural bar anchors the great room — carved timber, open air, and the chef already plating fresh, local ceviche as you arrive.',
+      },
+      {
+        variant: 'gallery',
+        columns: [
+          { imageUrl: IMG.livingCurve, fit: 'cover' },
+          {
+            publicId: 'the-living-room-image-1_1_eb7ch4',
+            imageUrl:
+              'https://res.cloudinary.com/dgvqx0qje/image/upload/v1782487926/the-living-room-image-1_1_eb7ch4.webp',
+            fit: 'cover',
+          },
         ],
-        placeholderNote: 'Recommended new photography: turndown detail + bath amenity flat-lay',
+      },
+      {
+        variant: 'service',
+        bg: 'linear-gradient(160deg, rgb(30,20,10) 0%, rgb(52,36,18) 100%)',
+        overlay: 'linear-gradient(0deg, rgba(18,12,6,0.65) 0%, rgba(18,12,6,0.4) 100%)',
+        publicId: 'the-living-romm-2_zm7tck',
+        imageUrl:
+          'https://res.cloudinary.com/dgvqx0qje/image/upload/v1782487704/the-living-romm-2_zm7tck.webp',
+        eyebrow: 'The welcome ritual',
+        headline: 'Arrival, served.',
+        items: [
+          { title: 'Signature cocktails', desc: 'Poured the moment the door opens.' },
+          { title: 'Fresh local ceviche', desc: 'Plated by the chef as you settle in.' },
+          { title: 'Guacamole, tableside', desc: 'Prepared in front of you, to taste.' },
+          { title: 'Chilled scented towels', desc: 'Offered before you set down a bag.' },
+        ],
+        placeholderNote: 'Recommended new photography: chef service + ceviche/guacamole detail',
       },
     ],
   },
 
-  // 13 · THE PIT (supporting — slow afternoons into evening)
+  // ═════════════════════════════════════════════════════════════
+  // PHASE V · THE EVENING
+  // ═════════════════════════════════════════════════════════════
+
+  // 14 · THE SUN PIT
   {
-    id: 'slide-13',
-    zIndex: 14,
-    meta: { phase: 'III · The 24-Hour Ecosystem', page: 'The Pit' },
+    id: 'slide-14',
+    zIndex: 15,
+    meta: { phase: 'V · The Evening', page: 'The Sun Pit' },
     panels: [
       {
         variant: 'text',
@@ -550,9 +599,8 @@ export const SLIDES = [
         imageUrl:
           'https://res.cloudinary.com/dgvqx0qje/image/upload/v1782490065/the-pit-text-cover_shfftj.webp',
         preload: true,
-        kenBurns: true,
         bg: 'linear-gradient(160deg, rgb(42,28,14) 0%, rgb(66,46,24) 100%)',
-        overlay: 'linear-gradient(0deg, rgba(22,14,6,0.88) 0%, rgba(22,14,6,0.1) 60%)',
+        overlay: 'linear-gradient(0deg, rgba(22,14,6,0.9) 0%, rgba(22,14,6,0.2) 60%)',
         headline: 'Where the afternoon has\nno intention of ending.',
         body: "The sunken social pit is the estate's slowest place — built for the kind of afternoon that turns into evening without anyone noticing.",
       },
@@ -582,24 +630,14 @@ export const SLIDES = [
           },
         ],
       },
-      {
-        variant: 'media',
-        publicId: 'the-pit-video-1_kyvjir',
-        resourceType: 'video',
-        imageUrl:
-          'https://res.cloudinary.com/dgvqx0qje/video/upload/f_mp4,vc_h264/v1782490076/the-pit-video-1_kyvjir',
-        mediaFit: 'cover',
-        preload: true,
-        caption: 'The sunken lounge — sand, shade, and slow afternoons',
-      },
     ],
   },
 
-  // 14 · THE ROOFTOP (supporting)
+  // 15 · THE ROOFTOP
   {
-    id: 'slide-14',
-    zIndex: 15,
-    meta: { phase: 'III · The 24-Hour Ecosystem', page: 'The Rooftop' },
+    id: 'slide-15',
+    zIndex: 16,
+    meta: { phase: 'V · The Evening', page: 'The Rooftop' },
     panels: [
       {
         variant: 'text',
@@ -607,11 +645,10 @@ export const SLIDES = [
         imageUrl:
           'https://res.cloudinary.com/dgvqx0qje/image/upload/v1782490682/the-rooftop-text-cover_unvtgr.webp',
         preload: true,
-        kenBurns: true,
         bg: 'linear-gradient(160deg, rgb(38,22,12) 0%, rgb(60,38,20) 100%)',
-        overlay: 'linear-gradient(0deg, rgba(20,10,6,0.88) 0%, rgba(20,10,6,0.1) 60%)',
+        overlay: 'linear-gradient(0deg, rgba(20,10,6,0.9) 0%, rgba(20,10,6,0.2) 60%)',
         headline: 'Above everything.\nStill inside it.',
-        body: 'The rooftop terrace sits above the canopy — open to the sky, the ocean, and a silence that only altitude brings.',
+        body: 'The rooftop terraces sit above the canopy — open to the sky, the ocean, and a silence that only altitude brings.',
       },
       {
         variant: 'gallery',
@@ -632,7 +669,6 @@ export const SLIDES = [
       },
       {
         variant: 'media',
-        publicId: 'the-roof-top-video_erlxbz',
         resourceType: 'video',
         imageUrl:
           'https://res.cloudinary.com/dgvqx0qje/video/upload/f_mp4,vc_h264/v1782490705/the-roof-top-video_erlxbz',
@@ -643,84 +679,91 @@ export const SLIDES = [
     ],
   },
 
-  // 15 · THE GARDEN (supporting)
-  {
-    id: 'slide-15',
-    zIndex: 16,
-    meta: { phase: 'III · The 24-Hour Ecosystem', page: 'The Garden' },
-    panels: [
-      {
-        variant: 'text',
-        publicId: 'the-garden-text-cover_j1w7w3',
-        imageUrl:
-          'https://res.cloudinary.com/dgvqx0qje/image/upload/v1782491053/the-garden-text-cover_j1w7w3.webp',
-        preload: true,
-        kenBurns: true,
-        bg: 'linear-gradient(160deg, rgb(14,24,12) 0%, rgb(26,42,22) 100%)',
-        overlay: 'linear-gradient(0deg, rgba(8,16,6,0.88) 0%, rgba(8,16,6,0.1) 60%)',
-        headline: 'The jungle came first.\nWe built around it.',
-        body: 'Native Oaxacan flora surrounds every wall — not as decoration, but as the original inhabitant of this land.',
-      },
-      {
-        variant: 'gallery',
-        columns: [
-          {
-            publicId: 'the-garden-image-1_arfey5',
-            imageUrl:
-              'https://res.cloudinary.com/dgvqx0qje/image/upload/v1782491038/the-garden-image-1_arfey5.webp',
-            fit: 'cover',
-          },
-          {
-            publicId: 'the-garden-image-2_vm1d3j',
-            imageUrl:
-              'https://res.cloudinary.com/dgvqx0qje/image/upload/v1782491040/the-garden-image-2_vm1d3j.webp',
-            fit: 'cover',
-          },
-        ],
-      },
-    ],
-  },
-
-  // 16 · THE LOCATION (supporting proximity)
+  // 16 · THE SUNSET — the final evening vibe
   {
     id: 'slide-16',
     zIndex: 17,
-    meta: { phase: 'III · The 24-Hour Ecosystem', page: 'The Location' },
+    meta: { phase: 'V · The Evening', page: 'The Sunset' },
     panels: [
       {
         variant: 'text',
-        publicId: 'the-location-text-cover_da50nt',
-        imageUrl:
-          'https://res.cloudinary.com/dgvqx0qje/image/upload/v1782491723/the-location-text-cover_da50nt.webp',
+        imageUrl: IMG.sunsetTerrace,
         preload: true,
-        kenBurns: true,
-        bg: 'linear-gradient(160deg, rgb(12,20,30) 0%, rgb(22,36,50) 100%)',
-        overlay: 'linear-gradient(0deg, rgba(6,12,20,0.88) 0%, rgba(6,12,20,0.1) 60%)',
-        headline: 'Puerto Escondido,\nuntamed.',
-        body: 'The beach is minutes away. The Pacific is as it has always been — unhurried, enormous, and entirely without agenda.',
+        bg: 'linear-gradient(160deg, rgb(40,22,18) 0%, rgb(64,34,22) 100%)',
+        overlay: 'linear-gradient(0deg, rgba(24,10,8,0.88) 0%, rgba(24,10,8,0.15) 60%)',
+        headline: 'The day ends where\nthe ocean begins.',
+        body: 'From the terrace daybeds, the sun drops straight into the Pacific — the estate’s nightly, unticketed show.',
       },
       {
         variant: 'media',
-        publicId: 'the-location-video_zjfckg',
-        resourceType: 'video',
-        imageUrl:
-          'https://res.cloudinary.com/dgvqx0qje/video/upload/f_mp4,vc_h264/v1782491702/the-location-video_zjfckg',
+        imageUrl: IMG.beachSunset,
         mediaFit: 'cover',
         preload: true,
-        caption: 'Pacific coastline — the surrounding landscape',
+        icon: 'image',
+        caption: 'The beach at sunset — a few steps from the door',
+      },
+      {
+        variant: 'media',
+        imageUrl: IMG.estateNight,
+        mediaFit: 'cover',
+        preload: true,
+        icon: 'image',
+        caption: 'The estate after dark — lit low, warm, and quiet',
       },
     ],
   },
 
   // ═════════════════════════════════════════════════════════════
-  // PHASE IV · EXECUTIVE & PRODUCTION
+  // THE AERIAL CHAPTER — placeholder for Sept/Oct drone shoot
   // ═════════════════════════════════════════════════════════════
-
-  // 17 · PRODUCTION FOOTPRINT — perimeter + adjacent staging lot (site plan)
   {
     id: 'slide-17',
     zIndex: 18,
-    meta: { phase: 'IV · Executive & Production', page: 'Production Footprint' },
+    meta: { phase: 'Coming September · October', page: 'The Aerial Chapter' },
+    panels: [
+      {
+        variant: 'aerial',
+        bg: 'linear-gradient(170deg, rgb(10,14,20) 0%, rgb(16,24,34) 55%, rgb(12,16,14) 100%)',
+        eyebrow: 'Drone photography & film · September – October 2026',
+        headline: 'The estate,\nfrom above.',
+        body: 'A dedicated aerial chapter lands here after the drone shoot — sweeping coastline approaches, the rooftop geometry, and the jungle canopy in motion.',
+        note: 'Reserved for aerial hero footage',
+      },
+    ],
+  },
+
+  // ═════════════════════════════════════════════════════════════
+  // PHASE VI · EXECUTIVE & LOGISTICS
+  // ═════════════════════════════════════════════════════════════
+
+  // 18 · THE FLOOR PLAN
+  {
+    id: 'slide-18',
+    zIndex: 19,
+    meta: { phase: 'VI · Executive & Logistics', page: 'The Floor Plan' },
+    panels: [
+      {
+        variant: 'floorplan',
+        bg: 'radial-gradient(120% 100% at 70% 0%, rgb(20,22,26) 0%, rgb(12,13,16) 70%)',
+        eyebrow: 'Room assignment · illustrative',
+        headline: 'Every room,\nalready decided.',
+        body: 'Assign suites before wheels-down — the estate at a glance for planners, EAs, and production leads.',
+        legend: [
+          { key: 'suite', label: 'King suites' },
+          { key: 'bunk', label: 'Bunk room' },
+          { key: 'social', label: 'Living, dining & bar' },
+          { key: 'outdoor', label: 'Pool, pit & terraces' },
+        ],
+        placeholderNote: 'Schematic — replace with surveyed floor plan when available',
+      },
+    ],
+  },
+
+  // 19 · PRODUCTION FOOTPRINT
+  {
+    id: 'slide-19',
+    zIndex: 20,
+    meta: { phase: 'VI · Executive & Logistics', page: 'Production Footprint' },
     panels: [
       {
         variant: 'text',
@@ -728,9 +771,8 @@ export const SLIDES = [
         imageUrl:
           'https://res.cloudinary.com/dgvqx0qje/image/upload/v1782493282/the-architecture-2_1_dshryn.webp',
         preload: true,
-        kenBurns: true,
         bg: 'linear-gradient(160deg, rgb(16,16,18) 0%, rgb(30,30,34) 100%)',
-        overlay: 'linear-gradient(0deg, rgba(10,10,12,0.9) 0%, rgba(10,10,12,0.2) 60%)',
+        overlay: 'linear-gradient(0deg, rgba(10,10,12,0.9) 0%, rgba(10,10,12,0.3) 60%)',
         headline: 'Built for productions,\nnot just guests.',
         body: 'A gated, high-security perimeter and a dedicated adjacent lot secured specifically for production staging, grip trucks, and catering basecamps.',
       },
@@ -768,20 +810,18 @@ export const SLIDES = [
     ],
   },
 
-  // 18 · THE RETREAT — private, by invitation
+  // 20 · THE RETREAT
   {
-    id: 'slide-18',
-    zIndex: 19,
-    meta: { phase: 'IV · Executive & Production', page: 'The Retreat' },
+    id: 'slide-20',
+    zIndex: 21,
+    meta: { phase: 'VI · Executive & Logistics', page: 'The Retreat' },
     panels: [
       {
         variant: 'scale',
-        publicId: 'the-architecture-1_1_axxtlw',
-        imageUrl:
-          'https://res.cloudinary.com/dgvqx0qje/image/upload/v1782493291/the-architecture-1_1_axxtlw.webp',
+        imageUrl: IMG.estatePano,
         preload: true,
         bg: 'linear-gradient(160deg, rgb(16,18,22) 0%, rgb(30,34,40) 100%)',
-        overlay: 'linear-gradient(0deg, rgba(8,10,14,0.88) 0%, rgba(8,10,14,0.4) 100%)',
+        overlay: 'linear-gradient(0deg, rgba(8,10,14,0.9) 0%, rgba(8,10,14,0.45) 100%)',
         eyebrow: 'Private, by invitation',
         headline: 'Reserved for\nthe few.',
         body: 'The estate is offered to a small circle at a time — private by design, and entirely yours for the moment you are here.',
@@ -794,10 +834,10 @@ export const SLIDES = [
     ],
   },
 
-  // 19 · CLOSING — sign-off (invitation)
+  // 21 · CLOSING
   {
-    id: 'slide-19',
-    zIndex: 20,
+    id: 'slide-21',
+    zIndex: 22,
     meta: null,
     panels: [
       {
