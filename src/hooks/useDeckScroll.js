@@ -15,6 +15,27 @@ const LERP_SCRUB = 0.12;
 const SETTLE_IDLE_MS = 360;
 const SETTLE_THRESHOLD = 12;
 
+// Mobile full-screen pages (the CSS sticky stack). Matches the sticky selectors
+// in app.css — these are the only panels that "cover"; tall panels (galleries,
+// program, plans) stay in natural flow and must never be settle-snapped.
+const MOBILE_PAGE_SEL =
+  '.deck-panel.is-cover, .deck-panel.is-text, .deck-panel.is-media, ' +
+  '.deck-panel.is-vertical, .deck-panel.is-swivel, .deck-panel.is-closing, ' +
+  '.deck-panel.is-aerial';
+
+// Document flow offset via the offsetTop chain — stable regardless of sticky
+// pinning (getBoundingClientRect().top reads 0 for a pinned page, which would
+// make every pinned page look "aligned").
+function docTop(el) {
+  let y = 0;
+  let n = el;
+  while (n) {
+    y += n.offsetTop;
+    n = n.offsetParent;
+  }
+  return y;
+}
+
 export default function useDeckScroll(slides) {
   const wrapRefs = useRef([]);
   const metaRef = useRef([]);
@@ -241,10 +262,54 @@ export default function useDeckScroll(slides) {
       }
     };
 
+    // Mobile counterpart: the pages are a CSS sticky stack (no JS transforms),
+    // so settle by nudging native scroll to the nearest full-screen page. Only
+    // fires between two ADJACENT full-screen pages (~one viewport apart) — if a
+    // tall page sits between the bracketing anchors we leave the reader alone.
+    const maybeSettleMobile = () => {
+      if (isSettling) return;
+      const vh = window.innerHeight;
+      const s = window.scrollY;
+
+      const anchors = Array.from(document.querySelectorAll(MOBILE_PAGE_SEL))
+        .map(docTop)
+        .sort((a, b) => a - b);
+      if (!anchors.length) return;
+
+      let below = -Infinity;
+      let above = Infinity;
+      for (const t of anchors) {
+        if (t <= s && t > below) below = t;
+        if (t >= s && t < above) above = t;
+      }
+      if (!Number.isFinite(below) || !Number.isFinite(above)) return;
+
+      const gap = above - below;
+      if (gap === 0) return; // already resting on a page
+      if (gap > vh * 1.15) return; // tall page between anchors — don't yank
+
+      const target = s - below < above - s ? below : above;
+      if (Math.abs(target - s) <= SETTLE_THRESHOLD) return;
+
+      isSettling = true;
+      window.scrollTo({ top: Math.round(target), behavior: 'smooth' });
+      clearTimeout(settleClearTimer);
+      settleClearTimer = setTimeout(() => {
+        isSettling = false;
+      }, 850);
+    };
+
+    const isMobileLayout = () =>
+      typeof window.matchMedia === 'function' &&
+      window.matchMedia('(max-width: 900px), (orientation: portrait)').matches;
+
     const scheduleSettle = () => {
       if (reduceMotion) return;
       clearTimeout(idleTimer);
-      idleTimer = setTimeout(maybeSettle, SETTLE_IDLE_MS);
+      idleTimer = setTimeout(
+        isMobileLayout() ? maybeSettleMobile : maybeSettle,
+        SETTLE_IDLE_MS,
+      );
     };
 
     const tick = () => {
