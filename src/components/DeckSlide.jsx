@@ -3,7 +3,8 @@ import { ChevronIcon } from './Icons';
 
 export default function DeckSlide({ slide, slideState, wrapRef, isActive, isNearActive }) {
   const { panelIndex, cueDown, cueText, indexText } = slideState;
-  const hasMeta = slide.meta && slide.panels.length > 1;
+  const hasMeta = Boolean(slide.meta);
+  const hasCue = hasMeta && slide.panels.length > 1;
 
   return (
     <section
@@ -20,11 +21,11 @@ export default function DeckSlide({ slide, slideState, wrapRef, isActive, isNear
           </div>
         )}
 
-        {hasMeta && indexText && (
+        {hasCue && indexText && (
           <div className="deck-index">{indexText}</div>
         )}
 
-        {hasMeta && (
+        {hasCue && (
           <div className={`deck-cue${cueDown ? ' is-down' : ''}`}>
             <span>{cueText}</span>
             <ChevronIcon className="deck-cue-chevron" />

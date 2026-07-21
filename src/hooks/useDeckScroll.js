@@ -5,11 +5,15 @@ function padIndex(n) {
   return String(n).padStart(2, '0');
 }
 
-// Ease factor for horizontal pan / scrub — higher = snappier, lower = silkier.
-const LERP = 0.11;
-const LERP_SCRUB = 0.09;
-const SNAP_IDLE_MS = 320;
-const SNAP_THRESHOLD = 10;
+// Ease factor for the page-cover / scrub — higher = snappier, lower = silkier.
+// Kept snappy so pages track the wheel closely (no floaty lag).
+const LERP = 0.16;
+const LERP_SCRUB = 0.12;
+// Idle settle: once the reader STOPS mid page-transition, ease to the nearest
+// page boundary so they never rest on two half-pages. Never fires during an
+// active scroll — the reader always dictates the pace.
+const SETTLE_IDLE_MS = 360;
+const SETTLE_THRESHOLD = 12;
 
 export default function useDeckScroll(slides) {
   const wrapRefs = useRef([]);
@@ -45,39 +49,36 @@ export default function useDeckScroll(slides) {
       const panels = panelEls.length;
       const isScrub = Boolean(slide.scrub);
 
-      // Mobile (non-scrub): unfold the horizontal track into a vertical stack.
+      // Mobile: unfold everything into a plain vertical stack — including the
+      // swivel, which renders as a plain full-screen page (no pinned scrub).
       // Clear any inline sizing so the responsive CSS owns the layout.
-      if (isMobile && !isScrub) {
+      if (isMobile) {
         panelEls.forEach((p) => {
-          p.style.width = '';
+          p.style.transform = '';
         });
-        track.style.width = '';
-        track.style.transform = '';
         wrap.style.height = '';
+        if (isScrub) slideEl.style.setProperty('--p', '1');
         return { wrap, slideEl, track, panels, pan: 0, isScrub: false, mobile: true };
       }
 
-      const slideWidth = slideEl.clientWidth;
-      panelEls.forEach((p) => {
-        p.style.width = `${slideWidth}px`;
-      });
-      track.style.width = `${panels * slideWidth}px`;
-
-      // Scrub slides don't pan horizontally — they expose scroll progress as
-      // a CSS variable that drives an in-panel animation (e.g. the swivel door).
+      // Desktop: stacked vertical pages. Panels sit absolutely on top of each
+      // other; panel N slides up from below to cover panel N-1 as the wrap
+      // scrolls — one consistent direction, no horizontal movement.
       let pan = 0;
       if (isScrub) {
+        // Scrub slides expose scroll progress as a CSS variable that drives an
+        // in-panel animation (the swivel door).
         const amount = slide.scrubAmount || 1.2;
         pan = vh * amount;
         wrap.style.height = `${vh + pan}px`;
       } else if (panels <= 1) {
         wrap.style.height = `${vh}px`;
       } else {
-        pan = (panels - 1) * slideWidth;
+        pan = (panels - 1) * vh;
         wrap.style.height = `${vh + pan}px`;
       }
 
-      return { wrap, slideEl, track, panels, pan, isScrub, slideWidth, mobile: isMobile };
+      return { wrap, slideEl, track, panelEls, panels, pan, isScrub, vh, mobile: isMobile };
     });
 
     metaRef.current = meta;
@@ -174,16 +175,19 @@ export default function useDeckScroll(slides) {
       if (m.isScrub) {
         m.slideEl.style.setProperty('--p', current.toFixed(4));
         state.progress = current;
-      } else if (m.pan > 0) {
-        m.track.style.transform = `translate3d(${-current}px,0,0)`;
-        if (m.panels > 1 && m.slideWidth) {
-          const progress = m.pan > 0 ? current / m.pan : 0;
-          state.progress = progress;
-          state.panelIndex = Math.min(
-            m.panels - 1,
-            Math.round(progress * (m.panels - 1)),
-          );
+      } else if (m.pan > 0 && m.panelEls) {
+        // Page j slides up from below (offset vh → 0) across its scroll segment,
+        // covering the page before it. Page 0 never moves.
+        for (let j = 1; j < m.panelEls.length; j++) {
+          const seg = Math.min(1, Math.max(0, (current - (j - 1) * m.vh) / m.vh));
+          m.panelEls[j].style.transform = `translate3d(0, ${((1 - seg) * m.vh).toFixed(2)}px, 0)`;
         }
+        const progress = current / m.pan;
+        state.progress = progress;
+        state.panelIndex = Math.min(
+          m.panels - 1,
+          Math.round(progress * (m.panels - 1)),
+        );
       }
     }
 
@@ -193,8 +197,8 @@ export default function useDeckScroll(slides) {
   useEffect(() => {
     let resizeTimer;
     let idleTimer;
-    let isSnapping = false;
-    let snapClearTimer;
+    let isSettling = false;
+    let settleClearTimer;
     let raf = 0;
     let running = false;
     let idleFrames = 0;
@@ -205,44 +209,42 @@ export default function useDeckScroll(slides) {
       typeof window.matchMedia === 'function' &&
       window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    // When scrolling pauses mid-panel inside a multi-panel slide, gently settle
-    // to the nearest panel so viewers never rest on two half-panels. Never runs
-    // during an active scroll, on the swivel/scrub slide, or under reduced motion.
-    const maybeSnap = () => {
-      if (isSnapping) return;
+    // When scrolling pauses mid page-transition inside a pinned chapter, gently
+    // ease to the nearest page boundary so the reader never rests on two
+    // half-pages. Skipped for the swivel scrub, single-page chapters, mobile,
+    // and reduced motion; never runs during an active scroll.
+    const maybeSettle = () => {
+      if (isSettling) return;
       const vh = window.innerHeight;
       const meta = metaRef.current;
 
       for (const m of meta) {
-        if (!m || m.isScrub || m.panels <= 1 || m.pan <= 0) continue;
+        if (!m || m.mobile || m.isScrub || m.panels <= 1 || m.pan <= 0) continue;
 
         const rect = m.wrap.getBoundingClientRect();
         const isPinned = rect.top <= 0 && rect.bottom >= vh;
         if (!isPinned) continue;
 
         const raw = Math.min(Math.max(-rect.top, 0), m.pan);
-        const step = m.slideWidth;
-        if (!step) break;
+        const target = Math.min(m.pan, Math.round(raw / m.vh) * m.vh);
+        const delta = target - raw;
 
-        const targetRaw = Math.min(m.pan, Math.round(raw / step) * step);
-        const delta = targetRaw - raw;
-
-        if (Math.abs(delta) > SNAP_THRESHOLD) {
-          isSnapping = true;
-          scrollByOffset(delta, { duration: 0.9 });
-          clearTimeout(snapClearTimer);
-          snapClearTimer = setTimeout(() => {
-            isSnapping = false;
-          }, 900);
+        if (Math.abs(delta) > SETTLE_THRESHOLD) {
+          isSettling = true;
+          scrollByOffset(delta, { duration: 0.8 });
+          clearTimeout(settleClearTimer);
+          settleClearTimer = setTimeout(() => {
+            isSettling = false;
+          }, 850);
         }
         break;
       }
     };
 
-    const scheduleSnap = () => {
+    const scheduleSettle = () => {
       if (reduceMotion) return;
       clearTimeout(idleTimer);
-      idleTimer = setTimeout(maybeSnap, SNAP_IDLE_MS);
+      idleTimer = setTimeout(maybeSettle, SETTLE_IDLE_MS);
     };
 
     const tick = () => {
@@ -289,7 +291,7 @@ export default function useDeckScroll(slides) {
     };
 
     const kick = () => {
-      if (!isSnapping) scheduleSnap();
+      if (!isSettling) scheduleSettle();
       if (!running) {
         running = true;
         idleFrames = 0;
@@ -327,7 +329,7 @@ export default function useDeckScroll(slides) {
       cancelAnimationFrame(raf);
       clearTimeout(resizeTimer);
       clearTimeout(idleTimer);
-      clearTimeout(snapClearTimer);
+      clearTimeout(settleClearTimer);
     };
   }, [measure, sampleTargets, applyLerped]);
 

@@ -3,10 +3,7 @@ import ProgressRail from './components/ProgressRail';
 import DeckSlide from './components/DeckSlide';
 import Footer from './components/InquiryForm';
 import AmbientAudio from './components/AmbientAudio';
-import SwivelInvite from './components/SwivelInvite';
 import ScrollReveal from './components/ScrollReveal';
-import MobileParallax from './components/MobileParallax';
-import PanelClipReveal from './components/PanelClipReveal';
 import SmoothScroll from './components/SmoothScroll';
 import EnterGate from './components/EnterGate';
 import { IconSymbols } from './components/Icons';
@@ -29,10 +26,7 @@ export default function App() {
       <Nav />
       <ProgressRail activeSlide={activeSlide} slides={slides} />
       <AmbientAudio />
-      <SwivelInvite />
       <ScrollReveal />
-      <PanelClipReveal />
-      <MobileParallax />
 
       {slides.map((slide, i) => (
         <DeckSlide

@@ -1,14 +1,19 @@
 import { useEffect } from 'react';
 
-// Adds `.in-view` to each panel as it scrolls into the viewport, so content can
-// animate in on mobile (where the desktop `.is-live` reveal doesn't apply to
-// stacked panels past the first). Reveal-once, then unobserve. Harmless on
-// desktop — no desktop CSS reacts to `.in-view`.
+// Marks each panel with `data-inview` as it enters the viewport — the sole
+// driver of the deck's single, subtle fade-in (opacity only, no stagger, no
+// re-trigger). Reveal-once, then unobserve.
+//
+// A data attribute (not a class) on purpose: React re-renders rewrite
+// `className` (e.g. when `is-live` toggles) and would wipe an imperative
+// class, but attributes React doesn't render are left untouched.
 export default function ScrollReveal() {
   useEffect(() => {
     if (!('IntersectionObserver' in window)) {
       // No observer support — reveal everything so nothing stays hidden.
-      document.querySelectorAll('.deck-panel').forEach((p) => p.classList.add('in-view'));
+      document.querySelectorAll('.deck-panel').forEach((p) => {
+        p.dataset.inview = '1';
+      });
       return;
     }
 
@@ -16,7 +21,7 @@ export default function ScrollReveal() {
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            entry.target.classList.add('in-view');
+            entry.target.dataset.inview = '1';
             io.unobserve(entry.target);
           }
         });

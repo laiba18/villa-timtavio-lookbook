@@ -23,7 +23,7 @@ export function startLenis() {
   if (isTouch) return null;
 
   lenis = new Lenis({
-    duration: 1.35,
+    duration: 1.05,
     easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
     smoothWheel: true,
     syncTouch: false,
