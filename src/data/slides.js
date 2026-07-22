@@ -53,10 +53,10 @@ const IMG = {
 
 export const PHASES = [
   { key: 'arrival', label: 'I · The Arrival', startSlide: 1 },
-  { key: 'estate', label: 'II · The Estate', startSlide: 4 },
-  { key: 'residences', label: 'III · The Residences', startSlide: 8 },
-  { key: 'dining', label: 'IV · Dining & Social', startSlide: 11 },
-  { key: 'evening', label: 'V · The Evening', startSlide: 14 },
+  { key: 'estate', label: 'II · The Estate', startSlide: 3 },
+  { key: 'residences', label: 'III · The Residences', startSlide: 7 },
+  { key: 'dining', label: 'IV · Dining & Social', startSlide: 10 },
+  { key: 'evening', label: 'V · The Evening', startSlide: 13 },
   { key: 'executive', label: 'VI · Executive & Logistics', startSlide: 17 },
 ];
 
@@ -65,36 +65,35 @@ export const RAIL_ITEMS = [
   // Phase I — The Arrival
   { slide: 1, title: 'The Reveal', gapBefore: true },
   { slide: 2, title: 'The Front Door', gapBefore: false },
-  { slide: 3, title: 'The Gardens', gapBefore: false },
   // Phase II — The Estate
-  { slide: 4, title: 'The Pool', gapBefore: true },
-  { slide: 5, title: 'The View', gapBefore: false },
-  { slide: 6, title: 'Shadows & Structure', gapBefore: false },
-  { slide: 7, title: 'The Craft', gapBefore: false },
+  { slide: 3, title: 'The Pool', gapBefore: true },
+  { slide: 4, title: 'The View', gapBefore: false },
+  { slide: 5, title: 'Shadows & Structure', gapBefore: false },
+  { slide: 6, title: 'The Craft', gapBefore: false },
   // Phase III — The Residences
-  { slide: 8, title: 'The Suites', gapBefore: true },
-  { slide: 9, title: 'The Bunk Room', gapBefore: false },
-  { slide: 10, title: 'The Service', gapBefore: false },
+  { slide: 7, title: 'The Suites', gapBefore: true },
+  { slide: 8, title: 'The Bunk Room', gapBefore: false },
+  { slide: 9, title: 'The Service', gapBefore: false },
   // Phase IV — Dining & Social
-  { slide: 11, title: 'The Table', gapBefore: true },
-  { slide: 12, title: 'Culinary Program', gapBefore: false },
-  { slide: 13, title: 'The Bar', gapBefore: false },
+  { slide: 10, title: 'The Table', gapBefore: true },
+  { slide: 11, title: 'Culinary Program', gapBefore: false },
+  { slide: 12, title: 'The Bar', gapBefore: false },
   // Phase V — The Evening
-  { slide: 14, title: 'The Sun Pit', gapBefore: true },
-  { slide: 15, title: 'The Rooftop', gapBefore: false },
-  { slide: 16, title: 'The Sunset', gapBefore: false },
+  { slide: 13, title: 'The Sun Pit', gapBefore: true },
+  { slide: 14, title: 'The Rooftop', gapBefore: false },
+  { slide: 15, title: 'The Sunset', gapBefore: false },
   // Aerial chapter + Phase VI — Executive & Logistics
-  { slide: 17, title: 'The Aerial Chapter', gapBefore: true },
-  { slide: 18, title: 'The Floor Plan', gapBefore: false },
-  { slide: 19, title: 'Production Footprint', gapBefore: false },
-  { slide: 20, title: 'The Retreat', gapBefore: false },
-  { slide: 21, title: 'Closing', gapBefore: true },
+  { slide: 16, title: 'The Aerial Chapter', gapBefore: true },
+  { slide: 17, title: 'The Floor Plan', gapBefore: false },
+  { slide: 18, title: 'Production Footprint', gapBefore: false },
+  { slide: 19, title: 'The Retreat', gapBefore: false },
+  { slide: 20, title: 'Closing', gapBefore: true },
 ];
 
 export const NAV_LINKS = [
   { href: '#slide-1', label: 'Arrival' },
-  { href: '#slide-11', label: 'Dining' },
-  { href: '#slide-18', label: 'Executive' },
+  { href: '#slide-10', label: 'Dining' },
+  { href: '#slide-17', label: 'Executive' },
 ];
 
 export const SLIDES = [
@@ -171,31 +170,6 @@ export const SLIDES = [
         preload: true,
         icon: 'image',
         caption: 'The pivot door, resting in the timber curve',
-      },
-    ],
-  },
-
-  // 3 · THE GARDENS — native planting woven through the concrete
-  {
-    id: 'slide-3',
-    zIndex: 4,
-    meta: { phase: 'I · The Arrival', page: 'The Gardens' },
-    panels: [
-      {
-        variant: 'text',
-        imageUrl: IMG.gardenCactusWall,
-        preload: true,
-        bg: 'linear-gradient(160deg, rgb(36,28,18) 0%, rgb(58,46,30) 100%)',
-        overlay: 'linear-gradient(0deg, rgba(20,14,8,0.86) 0%, rgba(20,14,8,0.2) 60%)',
-        headline: 'The jungle\ncame first.',
-        body: 'Native Oaxacan flora is woven through the raw concrete at every turn — not decoration, but the original inhabitant of this land, kept exactly where it stood.',
-      },
-      {
-        variant: 'gallery',
-        columns: [
-          { imageUrl: IMG.gardenFlowerWall, fit: 'cover' },
-          { imageUrl: IMG.gardenCactusBeam, fit: 'cover' },
-        ],
       },
     ],
   },

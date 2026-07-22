@@ -12,7 +12,13 @@ import useDeckScroll from './hooks/useDeckScroll';
 import { useMediaPreload } from './hooks/useMediaPreload';
 import { enrichSlides } from './lib/resolveMedia';
 
-const slides = enrichSlides(SLIDES);
+// IDs and z-index are derived from array position so sections can be added,
+// removed, or reordered without hand-renumbering anchors or the rail.
+const slides = enrichSlides(SLIDES).map((slide, i) => ({
+  ...slide,
+  id: `slide-${i}`,
+  zIndex: i + 1,
+}));
 
 export default function App() {
   useMediaPreload(slides);
