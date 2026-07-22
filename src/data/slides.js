@@ -1,12 +1,21 @@
 // Villa TimTavio — a chronological, editorial walk-through of the estate,
 // reordered per client feedback (Tim, Jul 2026) into the exact flow:
 //
-//   The Front Door → The Courtyard → The Pool → Shadows & Architecture
-//   → The Suites → Dining & Living → The Bar → Sun Pits & Rooftops
-//   → The Sunset → (Aerial placeholder) → Executive & Logistics
+//   The Reveal (the door opens for the guest) → The Front Door → The
+//   Gardens → The Pool → Shadows & Architecture → The Suites →
+//   Dining & Living → The Bar → Sun Pits & Rooftops → The Sunset →
+//   (Aerial placeholder) → Executive & Logistics
 //
-// Slides flagged `scrub: true` are driven by scroll progress (CSS var --p) on
-// desktop only — on mobile they render as a plain full-screen page.
+// One rule on imagery: the signature palapa/pool hero appears only twice —
+// the cover and the door Reveal — and every other chapter draws from its own
+// dedicated Dropbox folder so no view repeats across adjacent sections.
+//
+// The pivot-door reveal opens the journey right after the cover — as if
+// the door is being opened for the arriving guest. Slides flagged
+// `scrub: true` are driven by scroll progress (CSS var --p) on desktop;
+// on mobile they render as a plain full-screen page.
+//
+// This deck is stills-only (no video), per client direction.
 //
 // NOTE — Dropbox staging assets: images marked `dbx(...)` hotlink from the
 // shared Dropbox folder for staging review. Re-upload the final picks to
@@ -21,9 +30,10 @@ const IMG = {
   entranceHero: dbx('AMOdIi0kwnz1X4-Uvfck4Bg', 'Website%20HiRes%20jpgs/L1000048-Edit.jpg'),
   doorCactus: dbx('AGFWM4Tf2CvAC6gvQnUAPH4', 'Front%20Entrance%20Options/2J7A3494.jpg'),
   doorOpen: dbx('AN_qsrg30qoGMwUgymeK-Yg', 'Front%20Entrance%20Options/2J7A3531.jpg'),
-  courtyardDay: dbx('AKymdr7IomIIfOU0wXa5IQI', 'Wide%20Open%20View/IMG_2547.jpg'),
-  courtyardDusk: dbx('AMMxpfcJLpo9WsQ3qbCW5Hc', 'Wide%20Open%20View/2J7A3012.jpg'),
   courtyardPalapa: dbx('AIQ7k7YHzoD_8TnTqFODB00', 'Website%20HiRes%20jpgs/2J7A4259.jpg'),
+  gardenCactusWall: dbx('AGOpvfoWkxZ6kF-WA-T-x1M', 'Landscape%20and%20Plants/2J7A3225.jpg'),
+  gardenFlowerWall: dbx('AJUBqWWpAL8jeE7SRjwgb4Q', 'Landscape%20and%20Plants/2J7A3140.jpg'),
+  gardenCactusBeam: dbx('AM_2ImL_RkfuG4gryeetbDI', 'Landscape%20and%20Plants/L1000136.jpg'),
   estatePano: dbx('AEi36xD7fiWBNufWB9uan6M', 'Wide%20Open%20View/2J7A3040.jpg'),
   brutalistFacade: dbx('ABF9CkrnH8xhd21ZrwasaBQ', 'Architecture%20Focus/2J7A3017.jpg'),
   stairSculpture: dbx('AGr7AuKMuk3jYwxek4pJ-Sc', 'Architecture%20Focus/2J7A3070.jpg'),
@@ -53,9 +63,9 @@ export const PHASES = [
 export const RAIL_ITEMS = [
   { slide: 0, title: 'Cover', gapBefore: false },
   // Phase I — The Arrival
-  { slide: 1, title: 'The Front Door', gapBefore: true },
-  { slide: 2, title: 'The Reveal', gapBefore: false },
-  { slide: 3, title: 'The Courtyard', gapBefore: false },
+  { slide: 1, title: 'The Reveal', gapBefore: true },
+  { slide: 2, title: 'The Front Door', gapBefore: false },
+  { slide: 3, title: 'The Gardens', gapBefore: false },
   // Phase II — The Estate
   { slide: 4, title: 'The Pool', gapBefore: true },
   { slide: 5, title: 'The View', gapBefore: false },
@@ -116,46 +126,10 @@ export const SLIDES = [
   // PHASE I · THE ARRIVAL
   // ═════════════════════════════════════════════════════════════
 
-  // 1 · THE FRONT DOOR
+  // 1 · THE REVEAL — the pivot door opens for the guest (desktop scroll-scrub)
   {
     id: 'slide-1',
     zIndex: 2,
-    meta: { phase: 'I · The Arrival', page: 'The Front Door' },
-    panels: [
-      {
-        variant: 'text',
-        imageUrl: IMG.entranceHero,
-        preload: true,
-        bg: 'linear-gradient(160deg, rgb(44,30,16) 0%, rgb(68,48,28) 100%)',
-        overlay: 'linear-gradient(0deg, rgba(20,14,8,0.88) 0%, rgba(20,14,8,0.25) 60%)',
-        headline: 'It begins\nat the door.',
-        body: 'Behind a secure, 24-hour gated perimeter, a carved timber curve holds the signature pivot door — the only threshold between the outside world and the estate.',
-      },
-      {
-        variant: 'media',
-        imageUrl: IMG.doorCactus,
-        mediaFit: 'cover',
-        preload: true,
-        icon: 'image',
-        caption: 'The pivot door, resting in the timber curve',
-      },
-      {
-        variant: 'vertical',
-        resourceType: 'video',
-        // Trimmed −2.6s: power cord visible at the original ending (Merrell's note)
-        imageUrl:
-          'https://res.cloudinary.com/dgvqx0qje/video/upload/f_mp4,vc_h264,eo_25.5/v1782484037/the-arrival-video_x7xzqy',
-        mediaFit: 'cover',
-        preload: true,
-        caption: 'Walking the garden path — the outside world falls away',
-      },
-    ],
-  },
-
-  // 2 · THE REVEAL — signature pivot-door reveal (desktop scroll-scrub)
-  {
-    id: 'slide-2',
-    zIndex: 3,
     scrub: true,
     scrubAmount: 1.35,
     meta: { phase: 'I · The Arrival', page: 'The Reveal' },
@@ -168,51 +142,59 @@ export const SLIDES = [
         preload: true,
         bg: 'linear-gradient(150deg, rgb(10,18,26) 0%, rgb(20,40,54) 60%, rgb(28,56,66) 100%)',
         eyebrow: 'The signature pivot door',
-        headline: 'One pivot, and\neverything changes.',
-        body: 'The door turns, and the estate opens — the courtyard, the palapa, and the Pacific light beyond. Ambient music is already playing; the first drink is already being poured.',
+        headline: 'The door opens\nfor you.',
+        body: 'The 16-foot pivot door turns, and the estate opens — the courtyard, the palapa, and the Pacific light beyond. Ambient music is already playing; the first drink is already being poured.',
         hint: 'Scroll to open the door',
       },
     ],
   },
 
-  // 3 · THE COURTYARD
+  // 2 · THE FRONT DOOR — the gated sanctuary & the door up close
   {
-    id: 'slide-3',
-    zIndex: 4,
-    meta: { phase: 'I · The Arrival', page: 'The Courtyard' },
+    id: 'slide-2',
+    zIndex: 3,
+    meta: { phase: 'I · The Arrival', page: 'The Front Door' },
     panels: [
       {
         variant: 'text',
-        imageUrl: IMG.courtyardDay,
+        imageUrl: IMG.entranceHero,
         preload: true,
-        bg: 'linear-gradient(160deg, rgb(36,28,18) 0%, rgb(58,46,30) 100%)',
-        overlay: 'linear-gradient(0deg, rgba(20,14,8,0.88) 0%, rgba(20,14,8,0.2) 60%)',
-        headline: 'The courtyard\nholds the day.',
-        body: 'Sand underfoot, native Oaxacan planting against raw concrete, and the palapa at the center — the courtyard is the estate’s open-air heart.',
+        bg: 'linear-gradient(160deg, rgb(44,30,16) 0%, rgb(68,48,28) 100%)',
+        overlay: 'linear-gradient(0deg, rgba(20,14,8,0.88) 0%, rgba(20,14,8,0.25) 60%)',
+        headline: 'A sanctuary that\nnever closes.',
+        body: 'Behind a secure, 24-hour gated perimeter, a carved timber curve holds the signature pivot door — the only threshold between the outside world and the estate.',
       },
       {
         variant: 'media',
-        imageUrl: IMG.courtyardDusk,
+        imageUrl: IMG.doorCactus,
         mediaFit: 'cover',
         preload: true,
         icon: 'image',
-        caption: 'The courtyard at dusk — lanterns on, day cooling into evening',
+        caption: 'The pivot door, resting in the timber curve',
+      },
+    ],
+  },
+
+  // 3 · THE GARDENS — native planting woven through the concrete
+  {
+    id: 'slide-3',
+    zIndex: 4,
+    meta: { phase: 'I · The Arrival', page: 'The Gardens' },
+    panels: [
+      {
+        variant: 'text',
+        imageUrl: IMG.gardenCactusWall,
+        preload: true,
+        bg: 'linear-gradient(160deg, rgb(36,28,18) 0%, rgb(58,46,30) 100%)',
+        overlay: 'linear-gradient(0deg, rgba(20,14,8,0.86) 0%, rgba(20,14,8,0.2) 60%)',
+        headline: 'The jungle\ncame first.',
+        body: 'Native Oaxacan flora is woven through the raw concrete at every turn — not decoration, but the original inhabitant of this land, kept exactly where it stood.',
       },
       {
         variant: 'gallery',
         columns: [
-          {
-            publicId: 'the-garden-image-1_arfey5',
-            imageUrl:
-              'https://res.cloudinary.com/dgvqx0qje/image/upload/v1782491038/the-garden-image-1_arfey5.webp',
-            fit: 'cover',
-          },
-          {
-            publicId: 'the-garden-image-2_vm1d3j',
-            imageUrl:
-              'https://res.cloudinary.com/dgvqx0qje/image/upload/v1782491040/the-garden-image-2_vm1d3j.webp',
-            fit: 'cover',
-          },
+          { imageUrl: IMG.gardenFlowerWall, fit: 'cover' },
+          { imageUrl: IMG.gardenCactusBeam, fit: 'cover' },
         ],
       },
     ],
@@ -238,16 +220,6 @@ export const SLIDES = [
         overlay: 'linear-gradient(0deg, rgba(8,16,26,0.88) 0%, rgba(8,16,26,0.2) 60%)',
         headline: 'The pool starts\nright at your feet.',
         body: 'The doors open completely to a sweeping, unobstructed vista. The infinity pool bleeds directly into the beach and the Pacific Ocean. It is pure magic.',
-      },
-      {
-        variant: 'media',
-        resourceType: 'video',
-        // Trimmed −2.5s: work light + cord on the deck at the original ending (Merrell's note)
-        imageUrl:
-          'https://res.cloudinary.com/dgvqx0qje/video/upload/f_mp4,vc_h264,eo_9/v1782489646/the-pool-video-horizontal_rpcnuf',
-        mediaFit: 'cover',
-        preload: true,
-        caption: 'The infinity edge — water surface dissolving into the horizon',
       },
       {
         // Portrait aerial — shown contained (not cropped) so the full
@@ -278,16 +250,7 @@ export const SLIDES = [
         bg: 'linear-gradient(160deg, rgb(16,24,34) 0%, rgb(26,40,56) 100%)',
         overlay: 'linear-gradient(0deg, rgba(8,14,20,0.82) 0%, rgba(8,14,20,0.25) 55%, rgba(8,14,20,0.1) 100%)',
         headline: 'Open this way.',
-        body: 'The panoramic sweep — coast, canopy, and open Pacific.',
-      },
-      {
-        variant: 'media',
-        resourceType: 'video',
-        imageUrl:
-          'https://res.cloudinary.com/dgvqx0qje/video/upload/f_mp4,vc_h264/v1782491358/the-view-video_ccotxy',
-        mediaFit: 'cover',
-        preload: true,
-        caption: 'The view — horizon, light, and the open Pacific',
+        body: 'The panoramic sweep — coast, canopy, and the open Pacific.',
       },
     ],
   },
@@ -323,15 +286,6 @@ export const SLIDES = [
           { imageUrl: IMG.stairSculpture, fit: 'cover' },
           { imageUrl: IMG.wallShadow, fit: 'cover' },
         ],
-      },
-      {
-        variant: 'vertical',
-        resourceType: 'video',
-        imageUrl:
-          'https://res.cloudinary.com/dgvqx0qje/video/upload/f_mp4,vc_h264/v1782484911/the-architecture-video-1_mppjer',
-        mediaFit: 'cover',
-        icon: 'video',
-        caption: 'Architecture walkthrough — form, material, and light',
       },
     ],
   },
@@ -402,15 +356,6 @@ export const SLIDES = [
         preload: true,
         icon: 'image',
         caption: 'Suite interior — bed, light, and the view beyond',
-      },
-      {
-        variant: 'vertical',
-        resourceType: 'video',
-        imageUrl:
-          'https://res.cloudinary.com/dgvqx0qje/video/upload/f_mp4,vc_h264/v1782488862/the-suite-video_z9l84e',
-        mediaFit: 'cover',
-        preload: true,
-        caption: 'Suite walkthrough — from entrance to terrace',
       },
     ],
   },
@@ -666,15 +611,6 @@ export const SLIDES = [
             fit: 'cover',
           },
         ],
-      },
-      {
-        variant: 'media',
-        resourceType: 'video',
-        imageUrl:
-          'https://res.cloudinary.com/dgvqx0qje/video/upload/f_mp4,vc_h264/v1782490705/the-roof-top-video_erlxbz',
-        mediaFit: 'cover',
-        preload: true,
-        caption: 'Rooftop terrace — above the canopy, open to the Pacific',
       },
     ],
   },
