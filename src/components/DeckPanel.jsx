@@ -1,5 +1,6 @@
 import { MediaIcon } from './Icons';
 import { mediaSource } from '../lib/mediaAssets';
+import { optimizeImageUrl } from '../lib/cloudinary';
 
 function Headline({ text, style, className = 'deck-headline' }) {
   const lines = text.split('\n');
@@ -130,7 +131,7 @@ function BackdropImage({ panel, priority, shouldLoad, dim = true }) {
       {panel.imageUrl && shouldLoad && (
         <img
           className={`deck-panel-bg-img${dim ? ' is-dim' : ''}`}
-          src={panel.imageUrl}
+          src={optimizeImageUrl(panel.imageUrl, { width: 2560 })}
           alt=""
           loading={priority ? 'eager' : 'lazy'}
           decoding="async"
@@ -154,7 +155,7 @@ function SwivelPanel({ panel, priority, shouldLoad }) {
       <div className="swivel-reveal">
         {panel.bg && <div className="deck-panel-bg" style={{ background: panel.bg }} />}
         {panel.revealImageUrl && shouldLoad && (
-          <img className="swivel-reveal-img" src={panel.revealImageUrl} alt="" aria-hidden="true" decoding="async" />
+          <img className="swivel-reveal-img" src={optimizeImageUrl(panel.revealImageUrl, { width: 2560 })} alt="" aria-hidden="true" decoding="async" />
         )}
         <div className="swivel-reveal-scrim" />
       </div>
@@ -162,7 +163,7 @@ function SwivelPanel({ panel, priority, shouldLoad }) {
       <div className="swivel-stage">
         <div className="swivel-door">
           {panel.doorImageUrl && shouldLoad ? (
-            <img className="swivel-door-img" src={panel.doorImageUrl} alt="" aria-hidden="true" decoding="async" />
+            <img className="swivel-door-img" src={optimizeImageUrl(panel.doorImageUrl, { width: 2560 })} alt="" aria-hidden="true" decoding="async" />
           ) : (
             <div className="swivel-door-face" />
           )}

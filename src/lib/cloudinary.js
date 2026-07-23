@@ -32,12 +32,14 @@ function injectTransforms(url, transformString) {
   return `${prefix}${transformString}/${rest}`;
 }
 
-/** Production CDN transforms — auto format, high quality, retina-aware */
+/** Production CDN transforms — auto format, smart quality, retina-aware.
+ *  q_auto:good balances near-original quality against noticeably smaller files
+ *  for faster loads. */
 export function optimizeImageUrl(url, { width = 2560 } = {}) {
   if (!url?.includes('res.cloudinary.com') || !url.includes('/image/upload/')) {
     return url;
   }
-  return injectTransforms(url, `f_auto,q_auto:best,w_${width},c_limit,dpr_auto`);
+  return injectTransforms(url, `f_auto,q_auto:good,w_${width},c_limit,dpr_auto`);
 }
 
 export function optimizeVideoUrl(url, { width = 2560 } = {}) {
